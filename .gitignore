@@ -19,3 +19,4 @@
 .database/
 .repo/
 .repodb/
+__debug_bin
