@@ -1,0 +1,76 @@
+version: "3.9"
+
+services: 
+
+    gitdb:
+        image: mysql:8.0
+        restart: always
+        container_name: rubberygogsdb
+        environment:
+            MYSQL_DATABASE: dbgitgoogs
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+            MYSQL_ROOT_PASSWORD: password
+        ports:
+            - 6300:3306
+        networks: 
+            - backend
+        volumes: 
+            - "./.repodb:/var/lib/mysql"
+
+    gitdbui:
+        image: phpmyadmin/phpmyadmin
+        container_name: rubberygogsdbui
+        restart: always
+        environment:
+            PMA_HOST: gitdb
+        ports:
+            - 8989:80
+        depends_on:
+            - gitdb
+        networks: 
+            - backend
+
+    gitserver:
+        image: gogs/gogs
+        ports:
+            - "10022:22"
+            - 3000:3000
+        container_name: rubberygogs
+        restart: always
+        environment:
+            - "RUN_CROND=true"
+        volumes:
+            - "./.git:/data/gogs"
+            - "./.repo:/data/git/gogs-repositories"
+        networks: 
+            - backend
+        depends_on: 
+            - gitdb
+    
+    redis:
+        image: redis:alpine
+        container_name: rubberycache
+        ports:
+            - "6379:6379"
+        networks:
+            - backend
+            
+    database:
+        image: mongo
+        container_name: rubberydatabase
+        environment: 
+            MONGO_INITDB_DATABASE: confdb
+            MONGO_INITDB_ROOT_USERNAME: masterconf
+            MONGO_INITDB_ROOT_PASSWORD: supersecret
+        volumes: 
+            - "./.database:/data/db"
+        ports:
+            - "27017-27019:27017-27019"
+        networks: 
+            - backend
+
+networks: 
+    backend:
+    frontend:
+

@@ -1,0 +1,55 @@
+meta:
+  description: 'toggle about xYZ'
+  tags:
+    - Foo
+
+configurations:
+  - config: 
+    id: 1
+    rules:
+      environment:
+        - production
+        - staging
+
+    rollout: allAtOnce
+    ttl: 120s
+    value: 
+      data: "{value:1}"
+      type: json
+
+  - config:
+    id: 2 
+    rules:
+      staff: true
+
+    rollout: 
+      strategy: allAtOnce
+    ttl: 60s
+    value: 
+      data: true
+      type: boolean
+      
+  
+  - config:
+    id: 3 
+    rules:
+      - querystring:
+        value: 
+          - 23342
+          - 23423
+          - 23424
+          - 234
+        key: "userId"
+      - header:
+        value:
+          - cyan
+        key: "color"
+
+    rollout: 
+      strategy: partial
+      enabledForOnly: 0.10
+      selector: sessionID
+    ttl: 180s
+    value:
+      data: 1
+      type: number

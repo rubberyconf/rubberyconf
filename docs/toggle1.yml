@@ -1,0 +1,16 @@
+meta:
+  description: 'toggle about xYZ'
+  tags:
+    - Foo
+
+value: true
+
+timeToLive:
+  value: 60
+  unit: seconds
+
+rollout: allAtOnce
+
+environment: 
+  - production
+  - staging
