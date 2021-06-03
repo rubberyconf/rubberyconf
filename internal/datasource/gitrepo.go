@@ -1,18 +1,15 @@
-package api
+package datasource
 
 import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 )
 
-func getValueFromGitRepo(file string, branch string) string {
+func GetValueFromGitRepo(url string) string {
 
 	client := &http.Client{}
 
-	conf := GetConfiguration()
-	url := strings.Join([]string{conf.GitServer.Url, "/raw/", branch, "/", file}, "")
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalln("error reaching repo")

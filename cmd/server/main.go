@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/rubberyconf/rubberyconf/api"
+	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 		log.Println(err)
 	}
 
-	conf := api.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
+	conf := config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
 
 	router := api.NewRouter()
 

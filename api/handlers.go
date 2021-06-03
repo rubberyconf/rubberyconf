@@ -4,45 +4,52 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
+
+	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/internal/datasource"
+	"github.com/rubberyconf/rubberyconf/internal/datastorage"
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome to RubberyConfg.io!")
+	fmt.Fprintln(w, "Welcome to RubberyConf.io!")
 }
 
-func ConfigurationGet(w http.ResponseWriter, r *http.Request) {
+func Configuration(w http.ResponseWriter, r *http.Request) {
 
-	conf := GetConfiguration()
-	storage := SelectStorage(conf)
+	conf := config.GetConfiguration()
+	storage := datastorage.SelectStorage(conf)
 
 	vars := mux.Vars(r)
-	feature := vars["feature"]
-	if feature == "" {
+	featureSelected := vars["feature"]
+	if featureSelected == "" {
 		log.Printf("no feature specified")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	updateCache := false
-	val, err := storage.GetValue(feature)
+	val, err := storage.GetValue(featureSelected)
 	if err {
 		branch := vars["branch"]
 		if branch == "" {
 			branch = "master"
 		}
-		log.Printf("feature: %s in branch: %s requested...", feature, branch)
+		log.Printf("feature: %s in branch: %s requested...", featureSelected, branch)
 
-		val = getValueFromGitRepo(feature+".yml", branch)
+		url := strings.Join([]string{conf.GitServer.Url, "/raw/", branch, "/", featureSelected + ".yml"}, "")
+		val = datasource.GetValueFromGitRepo(url)
 		updateCache = true
 	}
-	ruberConf := RubberyConfig{}
-	ruberConf.load(val)
+	ruberConf := feature.RubberyConfig{}
+	ruberConf.Load(val)
 
 	if updateCache {
-		storage.SetValue(feature, val, time.Duration(ruberConf.TimeToLive.Value)*time.Second)
+		storage.SetValue(featureSelected, val, time.Duration(ruberConf.TimeToLive.Value)*time.Second)
 	}
 
 	w.Header().Set("Content-Type", "application/text; charset=UTF-8")

@@ -1,4 +1,4 @@
-package api
+package config
 
 import (
 	"log"
@@ -29,7 +29,7 @@ func NewConfiguration(filePath string) *Config {
 	return cfgSingleton
 }
 
-func (config *Config) readFile(filePath string) {
+func (conf *Config) readFile(filePath string) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		log.Println(err)
@@ -38,15 +38,15 @@ func (config *Config) readFile(filePath string) {
 	defer f.Close()
 
 	decoder := yaml.NewDecoder(f)
-	err = decoder.Decode(config)
+	err = decoder.Decode(conf)
 	if err != nil {
 		log.Println(err)
 		os.Exit(2)
 	}
 }
 
-func (config *Config) readEnv() {
-	err := envconfig.Process("", config)
+func (conf *Config) readEnv() {
+	err := envconfig.Process("", conf)
 	if err != nil {
 		log.Println(err)
 		os.Exit(2)

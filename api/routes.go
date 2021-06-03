@@ -19,35 +19,17 @@ var routes = Routes{
 		"GET",
 		"/",
 		Index,
-	}, /*
-		Route{
-			"TodoIndex",
-			"GET",
-			"/todos",
-			TodoIndex,
-		},
-		Route{
-			"TodoShow",
-			"GET",
-			"/todos/{todoId}",
-			TodoShow,
-		},
-		Route{
-			"TodoCreate",
-			"POST",
-			"/todos",
-			TodoCreate,
-		},*/
+	},
 	Route{
 		"configuration",
 		"GET",
 		"/conf/{feature}/{branch}",
-		ConfigurationGet,
+		Configuration,
 	},
 	Route{
 		"configuration",
 		"GET",
 		"/conf/{feature}",
-		ConfigurationGet,
+		Configuration,
 	},
 }

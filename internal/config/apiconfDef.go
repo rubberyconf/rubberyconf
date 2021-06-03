@@ -1,4 +1,4 @@
-package api
+package config
 
 type Config struct {
 	Api struct {

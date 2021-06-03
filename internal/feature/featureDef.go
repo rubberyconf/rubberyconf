@@ -1,4 +1,4 @@
-package api
+package feature
 
 import (
 	"fmt"
@@ -25,7 +25,7 @@ type RubberyConfig struct {
 	Environment []string `yaml:"environment"`
 }
 
-func (conf *RubberyConfig) load(payload interface{}) error {
+func (conf *RubberyConfig) Load(payload interface{}) error {
 
 	aux := fmt.Sprintf("%v", payload)
 	decoder := yaml.NewDecoder(strings.NewReader(aux))

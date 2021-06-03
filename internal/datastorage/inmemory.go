@@ -1,4 +1,4 @@
-package api
+package datastorage
 
 import (
 	"sync"

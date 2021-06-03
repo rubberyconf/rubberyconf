@@ -1,8 +1,10 @@
-package api
+package datastorage
 
 import (
 	"log"
 	"time"
+
+	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
 type IDataStorage interface {
@@ -10,7 +12,7 @@ type IDataStorage interface {
 	GetValue(key string) (interface{}, bool)
 }
 
-func SelectStorage(conf *Config) IDataStorage {
+func SelectStorage(conf *config.Config) IDataStorage {
 
 	var res IDataStorage
 	typeStorage := conf.Api.Type

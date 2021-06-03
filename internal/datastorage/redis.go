@@ -1,4 +1,4 @@
-package api
+package datastorage
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
 type redisClient struct {
@@ -23,7 +24,7 @@ func NewDataStorageRedis() *redisClient {
 
 	onceRedis.Do(func() {
 
-		conf := GetConfiguration()
+		conf := config.GetConfiguration()
 
 		if conf == nil {
 			log.Fatalf("No configuration loaded")
