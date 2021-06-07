@@ -20,7 +20,7 @@ var (
 	onceInMemory sync.Once
 )
 
-func NewDataStorageInMemory() (nc *inMemoryClient) {
+func NewDataStorageInMemory() *inMemoryClient {
 
 	onceInMemory.Do(func() {
 		inMemClient = new(inMemoryClient)

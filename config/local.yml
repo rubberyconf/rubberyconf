@@ -1,6 +1,7 @@
 api:
   port: 8080
   type: "inMemory"
+  sourcetype: "Gogs"
 
 database:
   user: "user"

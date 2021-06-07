@@ -41,8 +41,14 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("feature: %s in branch: %s requested...", featureSelected, branch)
 
-		url := strings.Join([]string{conf.GitServer.Url, "/raw/", branch, "/", featureSelected + ".yml"}, "")
-		val = datasource.GetValueFromGitRepo(url)
+		source := datasource.NewDataSourceGogs()
+
+		//source.Url = strings.Join([]string{conf.GitServer.Url, "/raw/", branch, "/", featureSelected + ".yml"}, "")
+		partialUrl := strings.Join([]string{branch, "/", featureSelected + ".yml"}, "")
+		val, err = source.GetFeature(partialUrl)
+		if err {
+			return
+		}
 		updateCache = true
 	}
 	ruberConf := feature.RubberyConfig{}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/rubberyconf/rubberyconf/api"
 	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/internal/datasource"
 )
 
 func main() {
@@ -20,6 +21,7 @@ func main() {
 	conf := config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
 
 	router := api.NewRouter()
+	datasource.SelectSource()
 
 	log.Printf(
 		"Api started at port: %s",

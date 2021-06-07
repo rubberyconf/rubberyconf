@@ -2,8 +2,9 @@ package config
 
 type Config struct {
 	Api struct {
-		Port string `yaml:"port", envconfig:"SERVER_PORT"`
-		Type string `yaml:"type", envconfig:"SERVER_TYPE"`
+		Port       string `yaml:"port", envconfig:"SERVER_PORT"`
+		Type       string `yaml:"type", envconfig:"SERVER_TYPE"`
+		SourceType string `yaml:"sourcetype", envconfig:"SOURCE_TYPE"`
 	} `yaml:"api"`
 	Database struct {
 		Username string `yaml:"user", envconfig:"DB_USERNAME"`
