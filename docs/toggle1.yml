@@ -3,14 +3,9 @@ meta:
   tags:
     - Foo
 
-value: true
+default:  
+  ttl: 120s
+  value: #default value
+    data: "{value:0}"
+    type: json
 
-timeToLive:
-  value: 60
-  unit: seconds
-
-rollout: allAtOnce
-
-environment: 
-  - production
-  - staging

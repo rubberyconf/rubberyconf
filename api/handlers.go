@@ -55,11 +55,12 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 	ruberConf.Load(val)
 
 	if updateCache {
-		storage.SetValue(featureSelected, val, time.Duration(ruberConf.TimeToLive.Value)*time.Second)
+		u, _ := time.ParseDuration(ruberConf.Default.TTL)
+		storage.SetValue(featureSelected, val, time.Duration(u.Seconds()))
 	}
 
 	w.Header().Set("Content-Type", "application/text; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("%v", ruberConf.Value.(interface{}))))
+	w.Write([]byte(fmt.Sprintf("%v", ruberConf.Default.Value.Data.(interface{}))))
 
 }

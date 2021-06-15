@@ -1,0 +1,78 @@
+meta:
+  description: 'toggle about xYZ'
+  tags:
+    - Foo
+  rollout: allAtOnce
+  ttl: 120s
+  value: 
+      data: false
+      type: bool
+
+configurations:
+  - config: 
+    id: 1
+    rules:
+      environment:
+        - production
+        - staging
+      
+
+    rollout: allAtOnce
+    ttl: 120s
+    value: 
+      data: true
+      type: bool
+   
+  - config: 
+    id: 2
+    rulesBehaviour: "AND"
+    rules:
+      paltform:
+        - android
+        - web
+      version:
+        - ">10.0.1"
+        - "<9.0.0"
+        - "9.5.1"
+      country:
+        - ES
+        - PT
+        - UK
+        - IT
+      city:
+        - BCN
+        - LND
+      userId:
+        - 4234234234Z
+        - X2342342342
+        - 45677u45643
+      userGroup: 
+        - admin
+        - staff
+        - testers
+        
+    rollout: allAtOnce
+    ttl: 120s
+    value: 
+      data: true
+      type: bool
+
+  - config: 
+    id: 3
+    rulesBehaviour: "XOR"
+    rules:
+      cities:
+        - BCN
+      experimentation:
+        id: 2345X
+        range:
+          lowestScore: .0
+          highestScore: .5
+        score:
+          - 0.75
+        
+    rollout: allAtOnce
+    ttl: 120s
+    value: 
+      data: true
+      type: bool

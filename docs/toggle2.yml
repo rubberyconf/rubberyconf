@@ -2,6 +2,11 @@ meta:
   description: 'toggle about xYZ'
   tags:
     - Foo
+default:  
+  ttl: 120s
+  value: #default value
+    data: "{value:0}"
+    type: json
 
 configurations:
   - config: 
@@ -19,19 +24,7 @@ configurations:
 
   - config:
     id: 2 
-    rules:
-      staff: true
-
-    rollout: 
-      strategy: allAtOnce
-    ttl: 60s
-    value: 
-      data: true
-      type: boolean
-      
-  
-  - config:
-    id: 3 
+    rulesBehaviour: "OR"
     rules:
       - querystring:
         value: 
