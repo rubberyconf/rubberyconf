@@ -9,4 +9,5 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rs/cors v1.7.0
 	gopkg.in/yaml.v2 v2.3.0
+	github.com/elastic/go-elasticsearch/v7 v7.0.0 
 )

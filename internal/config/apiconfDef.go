@@ -22,4 +22,8 @@ type Config struct {
 		Url      string `yaml:"url", envconfig:"GIT_URL"`
 		ApiToken string `yaml:"apitoken", envconfig:"GIT_APITOKEN"`
 	} `yaml:"gitserver"`
+	Elastic struct {
+		Url   string `yaml:"url", envconfig:"ELASTIC_URL"`
+		Index string `yaml:"index", envconfig:"ELASTIC_INDEX"`
+	} `yaml:"elastic"`
 }

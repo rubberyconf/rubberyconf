@@ -18,3 +18,5 @@
 .repo/
 .repodb/
 __debug_bin
+.env
+docker.env

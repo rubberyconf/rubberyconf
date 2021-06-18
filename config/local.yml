@@ -20,3 +20,7 @@ gitserver:
   url: "http://localhost:3000/acme/configuration"
   apitoken: "929f19719c9c9aac8c37c3a3766ebfce211cf5a9"
 
+elastic:
+  index: "rbtraces"
+  url: "http://localhost:9200"
+

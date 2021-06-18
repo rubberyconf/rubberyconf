@@ -9,8 +9,8 @@ services:
         environment:
             MYSQL_DATABASE: dbgitgoogs
             MYSQL_USER: user
-            MYSQL_PASSWORD: password
-            MYSQL_ROOT_PASSWORD: password
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
         ports:
             - 6300:3306
         networks: 
@@ -62,7 +62,7 @@ services:
         environment: 
             MONGO_INITDB_DATABASE: confdb
             MONGO_INITDB_ROOT_USERNAME: masterconf
-            MONGO_INITDB_ROOT_PASSWORD: supersecret
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
         volumes: 
             - "./.database:/data/db"
         ports:
