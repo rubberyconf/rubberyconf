@@ -4,9 +4,10 @@ api:
   sourcetype: "Gogs"
 
 database:
-  user: "user"
-  pass: ""
-  url: ""
+  collections:
+    metrics: "metrics"
+  databasename: "rubberyconfdb"
+  url: "http://localhost:27017"
 
 cache:
   user: ""

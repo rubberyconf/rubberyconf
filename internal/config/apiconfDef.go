@@ -7,9 +7,11 @@ type Config struct {
 		SourceType string `yaml:"sourcetype", envconfig:"SOURCE_TYPE"`
 	} `yaml:"api"`
 	Database struct {
-		Username string `yaml:"user", envconfig:"DB_USERNAME"`
-		Password string `yaml:"pass", envconfig:"DB_PASSWORD"`
-		Url      string `yaml:"url", envconfig:"DB_URL"`
+		Collections struct {
+			Metrics string `yaml:"metrics", envconfig:"DB_COL_METRICS"`
+		} `yaml:"collections"`
+		Url          string `yaml:"url", envconfig:"DB_URL"`
+		DatabaseName string `yaml:"databasename", envconfig:"DB_DATABASENAME"`
 	} `yaml:"database"`
 	Cache struct {
 		Username string `yaml:"user", envconfig:"CACHE_USERNAME"`

@@ -13,6 +13,7 @@ import (
 	"github.com/rubberyconf/rubberyconf/internal/datasource"
 	"github.com/rubberyconf/rubberyconf/internal/datastorage"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
+	"github.com/rubberyconf/rubberyconf/internal/metrics"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -63,4 +64,5 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("%v", ruberConf.Default.Value.Data.(interface{}))))
 
+	metrics.GetMetrics().Update()
 }
