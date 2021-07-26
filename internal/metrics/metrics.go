@@ -3,10 +3,12 @@ package metrics
 import (
 	"context"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -18,38 +20,21 @@ type Metrics struct {
 }
 
 type MongoMetrics struct {
-	_id       string    `json:"_id"`
-	createdAt time.Time `json:"createdAt"`
-	updatedAt time.Time `json:"updatedAt"`
-	counter   int64     `json:"counter"`
+	Id        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Feature   string             `json:"feature" bson:"feature"`
+	CreatedAt time.Time          `json:"createdAt"`
+	UpdatedAt time.Time          `json:"updatedAt"`
+	Counter   int64              `json:"counter"`
 }
 
 var (
-	metrics *Metrics
+	metrics   *Metrics
+	mongoOnce sync.Once
 )
 
 func CreateMetrics() *Metrics {
 	metrics = new(Metrics)
-	conf := config.GetConfiguration()
-	clientOptions := options.Client().ApplyURI(conf.Database.Url)
-	client, err := mongo.NewClient(clientOptions)
-	if err != nil {
-		log.Fatal(err)
-	}
-	metrics.client = client
-	ctx, _ := context.WithTimeout(context.TODO(), 10*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	metrics.ctx = ctx
-	defer client.Disconnect(ctx)
-
-	quickstartDatabase := client.Database(conf.Database.DatabaseName)
-	metricsCollection := quickstartDatabase.Collection(conf.Database.Collections.Metrics)
-
-	metrics.metricsCollection = metricsCollection
-
+	metrics.connect()
 	return metrics
 }
 
@@ -58,41 +43,71 @@ func GetMetrics() *Metrics {
 }
 
 func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
+
+	/*
+		conf := config.GetConfiguration()
+
+		clientOptions := options.Client().ApplyURI(conf.Database.Url)
+		client, err := mongo.NewClient(clientOptions)
+		if err != nil {
+			log.Fatal(err)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		err = client.Connect(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer client.Disconnect(ctx)
+		quickstartDatabase := client.Database(conf.Database.DatabaseName)
+		metricsCollection := quickstartDatabase.Collection(conf.Database.Collections.Metrics)
+	*/
+
 	newdocument := false
 	var metricRegister MongoMetrics
-	err := metric.metricsCollection.FindOne(metrics.ctx, bson.M{"_id": feature}).Decode(&metricRegister)
-	if err != nil {
-		//log.Fatal(err)
-		//return false, err
+	filter := bson.D{{"feature", feature}}
+	err := metric.metricsCollection.FindOne(metrics.ctx, filter).Decode(&metricRegister)
+	if err == mongo.ErrNoDocuments {
 		newdocument = true
+	} else if err != nil {
+		log.Fatal(err)
+		//return false, err
 	}
 
 	if newdocument {
 
 		newDoc := MongoMetrics{
-			_id:       feature,
-			createdAt: time.Now(),
-			updatedAt: time.Now(),
-			counter:   0,
+			Feature:   feature,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Counter:   0,
 		}
 		_, err := metric.metricsCollection.InsertOne(metric.ctx, newDoc)
 		if err != nil {
 			log.Fatal(err)
 			return nil, err
 		}
-		err = metric.metricsCollection.FindOne(metrics.ctx, bson.M{"_id": feature}).Decode(&metricRegister)
-		if err != nil {
-			log.Fatal(err)
-			return nil, err
-		}
+		//err = metric.metricsCollection.FindOne(metrics.ctx, bson.M{"_id": feature}).Decode(&metricRegister)
+		//if err != nil {
+		//	log.Fatal(err)
+		//	return nil, err
+		//}
+		return &newDoc, nil
+	} else {
+		//defer client.Disconnect(ctx)
+		return &metricRegister, nil
 	}
-	return &metricRegister, nil
 }
 func (metric *Metrics) storeMetrics(metricRegister *MongoMetrics) (bool, error) {
 
-	_, err := metric.metricsCollection.UpdateOne(metric.ctx, bson.M{"_id": metricRegister._id}, metricRegister)
+	_, err := metric.metricsCollection.UpdateOne(metric.ctx,
+		bson.D{{"feature", metricRegister.Feature}},
+		bson.D{{"$set", bson.D{{"counter", metricRegister.Counter}}}})
 
-	if err != nil {
+	if err == mongo.ErrNoDocuments {
+		log.Fatal("It should be create earlier")
+		return false, err
+	} else if err != nil {
 		log.Fatal(err)
 		return false, err
 	}
@@ -101,8 +116,8 @@ func (metric *Metrics) storeMetrics(metricRegister *MongoMetrics) (bool, error) 
 
 func (metricRegister *MongoMetrics) Update() {
 
-	metricRegister.counter += 1
-	metricRegister.updatedAt = time.Now()
+	metricRegister.Counter += 1
+	metricRegister.UpdatedAt = time.Now()
 }
 
 func (metric *Metrics) Update(feature string) (*MongoMetrics, error) {
@@ -124,9 +139,43 @@ func (metric *Metrics) Update(feature string) (*MongoMetrics, error) {
 
 func (metric *Metrics) Remove(feature string) (bool, error) {
 
-	_, err := metric.metricsCollection.DeleteOne(metrics.ctx, bson.M{"_id": feature})
+	_, err := metric.metricsCollection.DeleteMany(metrics.ctx, bson.D{{"feature", feature}})
 	if err != nil {
 		return false, err
 	}
 	return true, nil
+}
+
+func (metric *Metrics) connect() {
+
+	mongoOnce.Do(func() {
+
+		conf := config.GetConfiguration()
+		clientOptions := options.Client().ApplyURI(conf.Database.Url)
+		client, err := mongo.NewClient(clientOptions)
+		if err != nil {
+			log.Fatal(err)
+		}
+		metrics.client = client
+		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+		err = client.Connect(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = client.Ping(context.TODO(), nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		metrics.ctx = ctx
+		//defer client.Disconnect(ctx)
+
+		database := client.Database(conf.Database.DatabaseName)
+		metricsCollection := database.Collection(conf.Database.Collections.Metrics)
+
+		metrics.metricsCollection = metricsCollection
+		//res, err := metricsCollection.InsertOne(ctx, bson.D{{"name", "pi"}, {"value", 3.14159}})
+		//id := res.InsertedID
+		//log.Printf("%d", id)
+	})
+
 }

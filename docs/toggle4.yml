@@ -1,0 +1,27 @@
+meta:
+  description: 'toggle about xYZ'
+  tags:
+    - Foo
+default:  
+  ttl: 120s
+  value: #default value
+    data: "{value:0}"
+    type: json
+
+configurations:
+  - config: 
+    id: 1
+    rules:
+      environment:
+        - production
+        - staging
+      acl:
+        - groupUser1 # only apply to this user group 
+
+    rollout: allAtOnce
+    ttl: 120s
+    value: 
+      data: "{value:1}"
+      type: json
+
+  

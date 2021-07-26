@@ -8,6 +8,7 @@ import (
 )
 
 type RubberyConfig struct {
+	Name string `yaml:"name"`
 	Meta struct {
 		Description string   `yaml:"description"`
 		Tags        []string `yaml:"tags"`

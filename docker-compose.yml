@@ -59,18 +59,13 @@ services:
     database:
         image: mongo
         container_name: rubberydatabase
-        environment: 
-            MONGO_INITDB_DATABASE: confdb
-            MONGO_INITDB_ROOT_USERNAME: masterconf
-            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
         volumes: 
             - "./.database:/data/db"
         ports:
             - "27017-27019:27017-27019"
         networks: 
             - backend
-
-            services:
+    
     elasticsearch:
         container_name: es-container
         image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0

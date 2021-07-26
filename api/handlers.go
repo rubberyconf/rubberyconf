@@ -64,5 +64,5 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("%v", ruberConf.Default.Value.Data.(interface{}))))
 
-	metrics.GetMetrics().Update()
+	metrics.GetMetrics().Update(featureSelected)
 }

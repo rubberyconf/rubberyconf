@@ -5,17 +5,20 @@ Free, open, distributed and RESTful configuration engine
 
 # rubberyConf Service
 
+## Run it!
+
 ## Prerequisits
 
 Create .env file for docker dependencies like this:
 ```
     MYSQL_PASSWORD=
     MYSQL_ROOT_PASSWORD=
-    MONGO_INITDB_ROOT_PASSWORD=
 ```
+There's a template file in ./docker-env/template.env. Just copy it and rename it as 'local.env'. 
+
 Bootstrap dependencies:
 ```
-     $docker-compose up -d --env-file ./docker.env
+     $docker-compose --env-file ./docker-env/local.env up -d
 ```
 ## rubberyConf Api
 

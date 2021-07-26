@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
 func TestUpdateMetricsRegister(t *testing.T) {
@@ -21,13 +23,13 @@ func TestUpdateMetricsRegister(t *testing.T) {
 		testname := fmt.Sprintf("feature: %s, counter: %d, expectedCounter: %d", tt.feature, tt.counter, tt.expectedCounter)
 		t.Run(testname, func(t *testing.T) {
 			var metric MongoMetrics
-			metric._id = tt.feature
-			metric.counter = tt.counter
-			metric.createdAt = tt.createdAt
-			metric.updatedAt = tt.updatedAt
+			metric.Feature = tt.feature
+			metric.Counter = tt.counter
+			metric.CreatedAt = tt.createdAt
+			metric.UpdatedAt = tt.updatedAt
 			metric.Update()
-			if metric.counter != tt.expectedCounter {
-				t.Errorf("got %d, want %d", metric.counter, tt.expectedCounter)
+			if metric.Counter != tt.expectedCounter {
+				t.Errorf("got %d, want %d", metric.Counter, tt.expectedCounter)
 			}
 		})
 	}
@@ -43,7 +45,7 @@ func TestUpdateMetrics(t *testing.T) {
 		{"feature2", 1},
 		{"feature1", 3},
 	}
-
+	config.NewConfiguration("../../config/local.yml")
 	metricsService := CreateMetrics()
 
 	for _, tt := range tests {
@@ -53,20 +55,15 @@ func TestUpdateMetrics(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error running the test %s", err)
 			} else {
-				if res.counter != tt.expectedCounter {
-					t.Errorf("got %d, want %d", res.counter, tt.expectedCounter)
+				if res.Counter != tt.expectedCounter {
+					t.Errorf("got %d, want %d", res.Counter, tt.expectedCounter)
 				}
 			}
 		})
 	}
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("cleaning feature: %s", tt.feature)
-		t.Run(testname, func(t *testing.T) {
-			res, err := metricsService.Remove(tt.feature)
-			if err != nil || !res {
-				t.Errorf("error in feature %s", tt.feature)
-			}
-		})
+		metricsService.Remove(tt.feature)
 	}
+
 }

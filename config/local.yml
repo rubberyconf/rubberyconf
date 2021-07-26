@@ -7,7 +7,7 @@ database:
   collections:
     metrics: "metrics"
   databasename: "rubberyconfdb"
-  url: "http://localhost:27017"
+  url: "mongodb://localhost:27017/?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
 
 cache:
   user: ""
