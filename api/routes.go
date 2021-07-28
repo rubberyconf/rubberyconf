@@ -2,6 +2,8 @@ package api
 
 import (
 	"net/http"
+
+	"github.com/rubberyconf/rubberyconf/api/handlers"
 )
 
 type Route struct {
@@ -18,18 +20,18 @@ var routes = Routes{
 		"Index",
 		"GET",
 		"/",
-		Index,
+		handlers.Index,
 	},
 	Route{
 		"configuration",
 		"GET",
 		"/conf/{feature}/{branch}",
-		Configuration,
+		handlers.Configuration,
 	},
 	Route{
 		"configuration",
 		"GET",
 		"/conf/{feature}",
-		Configuration,
+		handlers.Configuration,
 	},
 }

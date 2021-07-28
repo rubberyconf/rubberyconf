@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"fmt"
@@ -9,21 +9,18 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/rubberyconf/rubberyconf/internal/cache"
 	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/internal/configurations"
 	"github.com/rubberyconf/rubberyconf/internal/datasource"
-	"github.com/rubberyconf/rubberyconf/internal/datastorage"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 	"github.com/rubberyconf/rubberyconf/internal/metrics"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome to RubberyConf.io!")
-}
-
 func Configuration(w http.ResponseWriter, r *http.Request) {
 
 	conf := config.GetConfiguration()
-	storage := datastorage.SelectStorage(conf)
+	storage := cache.SelectStorage(conf)
 
 	vars := mux.Vars(r)
 	featureSelected := vars["feature"]
@@ -36,24 +33,24 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 	updateCache := false
 	val, err := storage.GetValue(featureSelected)
 	if err {
-		branch := vars["branch"]
-		if branch == "" {
-			branch = "master"
-		}
-		log.Printf("feature: %s in branch: %s requested...", featureSelected, branch)
+		source := datasource.SelectSource()
+		if conf.Api.Source == datasource.INMEMORY {
+			val, _ = source.GetFeature(featureSelected)
+		} else {
+			branch := vars["branch"]
+			if branch == "" {
+				branch = "master"
+			}
+			log.Printf("feature: %s in branch: %s requested...", featureSelected, branch)
 
-		source := datasource.NewDataSourceGogs()
-
-		//source.Url = strings.Join([]string{conf.GitServer.Url, "/raw/", branch, "/", featureSelected + ".yml"}, "")
-		partialUrl := strings.Join([]string{branch, "/", featureSelected + ".yml"}, "")
-		val, err = source.GetFeature(partialUrl)
-		if err {
-			return
+			partialUrl := strings.Join([]string{branch, "/", featureSelected + ".yml"}, "")
+			val, _ = source.GetFeature(partialUrl)
 		}
 		updateCache = true
 	}
 	ruberConf := feature.RubberyConfig{}
 	ruberConf.Load(val)
+	configurations.ParseConfiguration(&ruberConf) //TODO
 
 	if updateCache {
 		u, _ := time.ParseDuration(ruberConf.Default.TTL)

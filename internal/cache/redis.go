@@ -1,4 +1,4 @@
-package datastorage
+package cache
 
 import (
 	"context"

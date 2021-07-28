@@ -1,12 +1,16 @@
-package datastorage
+package cache
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
-func TestInMemoryOptions(t *testing.T) {
+func TestInRedisOptions(t *testing.T) {
 
 	var tests = []struct {
 		key, value string
@@ -14,10 +18,16 @@ func TestInMemoryOptions(t *testing.T) {
 		want       string
 	}{
 		{"key1", "hello1", 1 * time.Second, "hello1"},  // retrieve value with corret TTL
-		{"key2", "hello2", 400 * time.Millisecond, ""}, //retrieve value with TTL completed
+		{"key2", "hello2", 100 * time.Millisecond, ""}, //retrieve value with TTL completed
 	}
 
-	storage := NewDataStorageInMemory()
+	conf := config.GetConfiguration()
+	if conf == nil {
+		path, _ := os.Getwd()
+		config.NewConfiguration(filepath.Join(path, "../config/local.yml"))
+	}
+
+	storage := NewDataStorageRedis()
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("key: %s, value: %s, duration: %d", tt.key, tt.value, tt.duration)
@@ -26,7 +36,7 @@ func TestInMemoryOptions(t *testing.T) {
 			time.Sleep(500 * time.Millisecond)
 			res, err := storage.GetValue(tt.key)
 			if !err && res != tt.want {
-				t.Errorf("got %s, want %s", res, tt.want)
+				t.Errorf("got '%s', want '%s'", res, tt.want)
 			}
 		})
 	}
