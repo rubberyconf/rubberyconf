@@ -2,22 +2,24 @@ package config
 
 type Config struct {
 	Api struct {
-		Port       string `yaml:"port", envconfig:"SERVER_PORT"`
-		Type       string `yaml:"type", envconfig:"SERVER_TYPE"`
-		SourceType string `yaml:"sourcetype", envconfig:"SOURCE_TYPE"`
+		Port   string   `yaml:"port", envconfig:"RUBBERYCONF_PORT"`
+		Cache  string   `yaml:"cache", envconfig:"RUBBERYCONF_CACHE"`
+		Source string   `yaml:"source", envconfig:"RUBBERYCONF_TYPE"`
+		Logs   []string `yaml:"logs"`
 	} `yaml:"api"`
 	Database struct {
 		Collections struct {
-			Metrics string `yaml:"metrics", envconfig:"DB_COL_METRICS"`
+			Metrics   string `yaml:"metrics", envconfig:"DB_COL_METRICS"`
+			SessionID string `yaml:"sessionids", envconfig:"DB_COL_SESSIONIDS"`
 		} `yaml:"collections"`
 		Url          string `yaml:"url", envconfig:"DB_URL"`
 		DatabaseName string `yaml:"databasename", envconfig:"DB_DATABASENAME"`
 	} `yaml:"database"`
-	Cache struct {
-		Username string `yaml:"user", envconfig:"CACHE_USERNAME"`
-		Password string `yaml:"pass", envconfig:"CACHE_PASSWORD"`
-		Url      string `yaml:"url", envconfig:"CACHE_URL"`
-	} `yaml:"cache"`
+	Redis struct {
+		Username string `yaml:"user", envconfig:"REDIS_USERNAME"`
+		Password string `yaml:"pass", envconfig:"REDIS_PASSWORD"`
+		Url      string `yaml:"url", envconfig:"REDIS_URL"`
+	} `yaml:"redis"`
 	GitServer struct {
 		Username string `yaml:"user", envconfig:"GIT_USERNAME"`
 		Password string `yaml:"pass", envconfig:"GIT_PASSWORD"`
@@ -25,7 +27,9 @@ type Config struct {
 		ApiToken string `yaml:"apitoken", envconfig:"GIT_APITOKEN"`
 	} `yaml:"gitserver"`
 	Elastic struct {
-		Url   string `yaml:"url", envconfig:"ELASTIC_URL"`
-		Index string `yaml:"index", envconfig:"ELASTIC_INDEX"`
+		Url  string `yaml:"url", envconfig:"ELASTIC_URL"`
+		Logs struct {
+			Index string `yaml:"index", envconfig:"ELASTIC_LOGS_INDEX"`
+		} `yaml:"logs"`
 	} `yaml:"elastic"`
 }

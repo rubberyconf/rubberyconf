@@ -5,9 +5,32 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
+	"sync"
+
+	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
-func (source *DataSource) GetFeature(partialUrl string) (interface{}, bool) {
+type DataSourceGogs struct {
+	Url string
+}
+
+var (
+	gogsDataSource *DataSourceGogs
+	onceGogs       sync.Once
+)
+
+func NewDataSourceGogs() *DataSourceGogs {
+
+	onceGogs.Do(func() {
+		conf := config.GetConfiguration()
+		gogsDataSource = new(DataSourceGogs)
+		gogsDataSource.Url = strings.Join([]string{conf.GitServer.Url, "/raw/"}, "")
+	})
+	return gogsDataSource
+}
+
+func (source *DataSourceGogs) GetFeature(partialUrl string) (interface{}, bool) {
 
 	client := &http.Client{}
 	finalURL := source.Url + partialUrl
@@ -31,4 +54,15 @@ func (source *DataSource) GetFeature(partialUrl string) (interface{}, bool) {
 	sb := string(body)
 	return sb, true
 
+}
+
+func (source *DataSourceGogs) DeleteFeature(feature string) bool {
+	log.Panicf("error gogs not implemented yet")
+	return false
+}
+
+func (source *DataSourceGogs) CreateFeature(feature string, featureDescription interface{}) bool {
+
+	log.Panicf("error gogs not implemented yet")
+	return false
 }

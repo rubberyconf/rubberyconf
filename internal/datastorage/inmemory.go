@@ -46,8 +46,9 @@ func (nc *inMemoryClient) GetValue(key string) (interface{}, bool) {
 
 }
 
-func (nc *inMemoryClient) SetValue(key string, value interface{}, expiration time.Duration) {
+func (nc *inMemoryClient) SetValue(key string, value interface{}, expiration time.Duration) bool {
 
 	aux := itemInMemory{value: value, ttl: expiration, initTime: time.Now()}
 	nc.values[key] = aux
+	return true
 }

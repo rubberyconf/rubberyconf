@@ -32,8 +32,8 @@ func NewDataStorageRedis() *redisClient {
 
 		redisClnt = new(redisClient)
 		redisClnt.rbd = redis.NewClient(&redis.Options{
-			Addr:     conf.Cache.Url,      // "localhost:6379",
-			Password: conf.Cache.Password, // no password set
+			Addr:     conf.Redis.Url,      // "localhost:6379",
+			Password: conf.Redis.Password, // no password set
 			DB:       0,                   // use default DB
 		})
 	})
@@ -50,10 +50,13 @@ func (aux *redisClient) GetValue(key string) (interface{}, bool) {
 
 }
 
-func (aux *redisClient) SetValue(key string, value interface{}, expiration time.Duration) {
+func (aux *redisClient) SetValue(key string, value interface{}, expiration time.Duration) bool {
 
 	err := aux.rbd.Set(ctx, key, value, expiration).Err()
 	if err != nil {
 		log.Fatalln(err)
+		return false
+	} else {
+		return true
 	}
 }

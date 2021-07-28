@@ -2,52 +2,36 @@ package datasource
 
 import (
 	"log"
-	"strings"
-	"sync"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
 type IDataSource interface {
-	GetFeature() (interface{}, bool)
+	GetFeature(feature string) (interface{}, bool)
+	DeleteFeature(feature string) bool
+	CreateFeature(feature string, featureDescription interface{}) bool
 }
-
-type DataSource struct {
-	Url string
-}
-
-var (
-	source   *DataSource
-	onceGogs sync.Once
-)
 
 const (
-	GOGS string = "Gogs"
+	GOGS     string = "Gogs"
+	GITHUB   string = "GitHub"
+	INMEMORY string = "InMemory"
 )
 
-func SelectSource() *DataSource {
+func SelectSource() IDataSource {
 
 	conf := config.GetConfiguration()
-	var res *DataSource
-	typeSource := conf.Api.SourceType
+	var res IDataSource
+	typeSource := conf.Api.Source
 	if typeSource == GOGS {
 		res = NewDataSourceGogs()
+	} else if typeSource == INMEMORY {
+		res = NewDataSourceInMemory()
+	} else if typeSource == GITHUB {
+		res = NewDataSourceGithub()
 	} else {
 		log.Fatal("no data source selected")
 	}
 
 	return res
-}
-
-func GetSource() *DataSource {
-	return source
-}
-func NewDataSourceGogs() *DataSource {
-
-	onceGogs.Do(func() {
-		conf := config.GetConfiguration()
-		source = new(DataSource)
-		source.Url = strings.Join([]string{conf.GitServer.Url, "/raw/"}, "")
-	})
-	return source
 }

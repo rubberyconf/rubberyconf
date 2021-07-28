@@ -1,15 +1,19 @@
-api:
+api: #rubberyconf server
   port: 8080
-  type: "inMemory"
-  sourcetype: "Gogs"
+  cache: "InMemory" #options: InMemory, Redis or None
+  source: "Gogs" #options: InMemory, Gogs or Github
+  logs: 
+    - Console
+    - Elastic
 
-database:
+database: 
   collections:
     metrics: "metrics"
+    sessionids: "usersessions"
   databasename: "rubberyconfdb"
   url: "mongodb://localhost:27017/?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
 
-cache:
+redis:
   user: ""
   pass: ""
   url: "127.0.0.1:6379"
@@ -22,6 +26,7 @@ gitserver:
   apitoken: "929f19719c9c9aac8c37c3a3766ebfce211cf5a9"
 
 elastic:
-  index: "rbtraces"
+  logs:
+    index: "rbtraces"
   url: "http://localhost:9200"
 
