@@ -22,7 +22,7 @@ func NewDataStorageSkip() *skip {
 }
 
 func (nc *skip) GetValue(key string) (interface{}, bool) {
-	return "", true
+	return nil, true
 }
 
 func (nc *skip) DeleteValue(key string) bool {

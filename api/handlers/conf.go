@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
+	"gopkg.in/yaml.v2"
 
 	"github.com/rubberyconf/rubberyconf/internal/cache"
 	"github.com/rubberyconf/rubberyconf/internal/config"
@@ -61,7 +63,7 @@ func ConfigurationGET(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ruberConf := feature.RubberyConfig{}
-	ruberConf.Load(val)
+	ruberConf.LoadFromYaml(val)
 
 	if updateCache {
 		timeInText := conf.Api.DefaultTTL
@@ -81,6 +83,45 @@ func ConfigurationGET(w http.ResponseWriter, r *http.Request) {
 
 func ConfigurationPOST(w http.ResponseWriter, r *http.Request) {
 
+	vars := mux.Vars(r)
+	conf, cacheValue, source, featureSelected, result := preRequisites(vars)
+	if !result {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		return
+	}
+	ruberConf := feature.RubberyConfig{}
+	ruberConf.LoadFromJsonBinary(b)
+
+	bYaml, err := yaml.Marshal(ruberConf)
+
+	featureSelected.Value = string(bYaml)
+
+	timeInText := conf.Api.DefaultTTL
+	if ruberConf.Default.TTL != "" {
+		timeInText = ruberConf.Default.TTL
+	}
+	u, _ := time.ParseDuration(timeInText)
+	errCache := cacheValue.SetValue(featureSelected.Key, featureSelected.Value, time.Duration(u.Seconds()))
+	if !errCache {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	errFea := source.CreateFeature(featureSelected)
+	if !errFea {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/text; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	metrics.GetMetrics().Update(featureSelected.Key)
+
 }
 
 func ConfigurationDELETE(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +133,17 @@ func ConfigurationDELETE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cacheValue.DeleteValue(featureSelected.Key)
-	source.DeleteFeature(featureSelected)
+	err := cacheValue.DeleteValue(featureSelected.Key)
+	if err {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = source.DeleteFeature(featureSelected)
+	if err {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/text; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
 
 }

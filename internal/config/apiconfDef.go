@@ -6,7 +6,7 @@ type Config struct {
 		Cache      string   `yaml:"cache", envconfig:"RUBBERYCONF_CACHE"`
 		Source     string   `yaml:"source", envconfig:"RUBBERYCONF_TYPE"`
 		Logs       []string `yaml:"logs"`
-		DefaultTTL string   `yaml:"default_ttl", envconfig:"RUBBERYCONG_DEFAULT_TTL"`
+		DefaultTTL string   `yaml:"default_ttl", envconfig:"RUBBERYCONG_DEFAULT_TTL", json:"default_ttl"`
 	} `yaml:"api"`
 	Database struct {
 		Collections struct {

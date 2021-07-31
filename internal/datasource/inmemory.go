@@ -24,7 +24,7 @@ func NewDataSourceInMemory() *DataSourceInMemory {
 func (source *DataSourceInMemory) GetFeature(feature *Feature) bool {
 	var ok bool
 	feature.Value, ok = source.features[feature.Key]
-	return ok
+	return !ok
 }
 
 func (source *DataSourceInMemory) DeleteFeature(feature Feature) bool {

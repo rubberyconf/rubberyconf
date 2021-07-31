@@ -1,6 +1,7 @@
 package feature
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -65,10 +66,16 @@ type RubberyConfig struct {
 	} `yaml:"configurations"`
 }
 
-func (conf *RubberyConfig) Load(payload interface{}) error {
+func (conf *RubberyConfig) LoadFromYaml(payload interface{}) error {
 
 	aux := fmt.Sprintf("%v", payload)
 	decoder := yaml.NewDecoder(strings.NewReader(aux))
 	err := decoder.Decode(conf)
+	return err
+}
+
+func (conf *RubberyConfig) LoadFromJsonBinary(b []byte) error {
+
+	err := json.Unmarshal(b, &conf)
 	return err
 }

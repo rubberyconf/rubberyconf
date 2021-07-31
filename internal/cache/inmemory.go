@@ -33,13 +33,13 @@ func (nc *inMemoryClient) GetValue(key string) (interface{}, bool) {
 
 	val, ok := nc.values[key]
 	if !ok {
-		return "", true
+		return nil, true
 	}
 	currentTime := time.Now()
 	diff := currentTime.Sub(val.initTime)
 
 	if diff > val.ttl {
-		return "", false
+		return nil, true
 	} else {
 		return val.value, false
 	}

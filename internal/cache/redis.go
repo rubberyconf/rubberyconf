@@ -44,7 +44,7 @@ func (aux *redisClient) GetValue(key string) (interface{}, bool) {
 
 	val, err := aux.rbd.Get(ctx, key).Result()
 	if err != nil {
-		return "", true
+		return nil, true
 	}
 	return val, false
 
