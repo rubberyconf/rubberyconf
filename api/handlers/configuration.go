@@ -2,64 +2,97 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
 
 	"github.com/rubberyconf/rubberyconf/internal/cache"
 	"github.com/rubberyconf/rubberyconf/internal/config"
-	"github.com/rubberyconf/rubberyconf/internal/configurations"
 	"github.com/rubberyconf/rubberyconf/internal/datasource"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 	"github.com/rubberyconf/rubberyconf/internal/metrics"
 )
 
-func Configuration(w http.ResponseWriter, r *http.Request) {
-
+func preRequisites(vars map[string]string) (*config.Config, cache.IDataStorage, datasource.IDataSource, datasource.Feature, bool) {
 	conf := config.GetConfiguration()
-	storage := cache.SelectStorage(conf)
+	cacheValue := cache.SelectCache(conf)
+	source := datasource.SelectSource()
+
+	feature, result := source.EnableFeature(vars)
+
+	//featureSelected := vars["feature"]
+	//result := true
+	//if !result {
+	//	log.Printf("no feature specified")
+	//	result = false
+	//}
+	return conf, cacheValue, source, feature, result
+}
+
+func ConfigurationGET(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	featureSelected := vars["feature"]
-	if featureSelected == "" {
-		log.Printf("no feature specified")
+	conf, cacheValue, source, featureSelected, result := preRequisites(vars)
+
+	if !result {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	updateCache := false
-	val, err := storage.GetValue(featureSelected)
+	val, err := cacheValue.GetValue(featureSelected.Key)
 	if err {
-		source := datasource.SelectSource()
-		if conf.Api.Source == datasource.INMEMORY {
-			val, _ = source.GetFeature(featureSelected)
-		} else {
-			branch := vars["branch"]
-			if branch == "" {
-				branch = "master"
-			}
-			log.Printf("feature: %s in branch: %s requested...", featureSelected, branch)
+		err = source.GetFeature(&featureSelected)
 
-			partialUrl := strings.Join([]string{branch, "/", featureSelected + ".yml"}, "")
-			val, _ = source.GetFeature(partialUrl)
+		if val == nil && !err {
+			w.Header().Set("Content-Type", "application/text; charset=UTF-8")
+			w.WriteHeader(http.StatusNoContent)
+			return
+
+		}
+		if val == nil && err {
+			w.Header().Set("Content-Type", "application/text; charset=UTF-8")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+
 		}
 		updateCache = true
 	}
+
 	ruberConf := feature.RubberyConfig{}
 	ruberConf.Load(val)
-	configurations.ParseConfiguration(&ruberConf) //TODO
 
 	if updateCache {
-		u, _ := time.ParseDuration(ruberConf.Default.TTL)
-		storage.SetValue(featureSelected, val, time.Duration(u.Seconds()))
+		timeInText := conf.Api.DefaultTTL
+		if ruberConf.Default.TTL != "" {
+			timeInText = ruberConf.Default.TTL
+		}
+		u, _ := time.ParseDuration(timeInText)
+		cacheValue.SetValue(featureSelected.Key, featureSelected.Value, time.Duration(u.Seconds()))
 	}
 
 	w.Header().Set("Content-Type", "application/text; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("%v", ruberConf.Default.Value.Data.(interface{}))))
 
-	metrics.GetMetrics().Update(featureSelected)
+	metrics.GetMetrics().Update(featureSelected.Key)
+}
+
+func ConfigurationPOST(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func ConfigurationDELETE(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	_, cacheValue, source, featureSelected, result := preRequisites(vars)
+
+	if !result {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	cacheValue.DeleteValue(featureSelected.Key)
+	source.DeleteFeature(featureSelected)
+
 }

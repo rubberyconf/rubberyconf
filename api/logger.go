@@ -20,7 +20,7 @@ func Logger(inner http.Handler, name string) http.Handler {
 			name,
 			time.Since(start))
 
-		logs.GetLogs().WriteMessage(message)
+		logs.GetLogs().WriteMessage(logs.INFO, message, r.Header)
 
 	})
 }

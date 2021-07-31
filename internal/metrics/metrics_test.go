@@ -46,7 +46,7 @@ func TestUpdateMetrics(t *testing.T) {
 		{"feature1", 3},
 	}
 	config.NewConfiguration("../../config/local.yml")
-	metricsService := CreateMetrics()
+	metricsService := GetMetrics()
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("feature: %s, expectedCounter: %d", tt.feature, tt.expectedCounter)

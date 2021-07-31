@@ -2,10 +2,11 @@ package config
 
 type Config struct {
 	Api struct {
-		Port   string   `yaml:"port", envconfig:"RUBBERYCONF_PORT"`
-		Cache  string   `yaml:"cache", envconfig:"RUBBERYCONF_CACHE"`
-		Source string   `yaml:"source", envconfig:"RUBBERYCONF_TYPE"`
-		Logs   []string `yaml:"logs"`
+		Port       string   `yaml:"port", envconfig:"RUBBERYCONF_PORT"`
+		Cache      string   `yaml:"cache", envconfig:"RUBBERYCONF_CACHE"`
+		Source     string   `yaml:"source", envconfig:"RUBBERYCONF_TYPE"`
+		Logs       []string `yaml:"logs"`
+		DefaultTTL string   `yaml:"default_ttl, envconfig:"RUBBERYCONG_DEFAULT_TTL"`
 	} `yaml:"api"`
 	Database struct {
 		Collections struct {

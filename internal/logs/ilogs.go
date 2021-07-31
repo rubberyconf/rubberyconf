@@ -1,18 +1,25 @@
 package logs
 
 import (
+	"log"
+	"os"
 	"sync"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/stringarr"
 )
 
 type iLogs interface {
-	WriteMessage(message string)
+	WriteMessage(level string, message string, metainfo interface{})
 }
 
 const (
 	CONSOLE string = "Console"
 	ELASTIC string = "Elastic"
+
+	INFO  string = "warning"
+	DEBUG string = "debug"
+	ERROR string = "error"
 )
 
 type Logs struct {
@@ -28,6 +35,7 @@ func GetLogs() *Logs {
 
 	logsOnce.Do(func() {
 		conf := config.GetConfiguration()
+		reviewDependencies(conf)
 		allLogs = new(Logs)
 		allLogs.logs = make(map[string]iLogs)
 
@@ -44,9 +52,18 @@ func GetLogs() *Logs {
 	return allLogs
 }
 
-func (logs *Logs) WriteMessage(message string) {
+func (logs *Logs) WriteMessage(level string, message string, metainfo interface{}) {
 
 	for _, lg := range logs.logs {
-		lg.WriteMessage(message)
+		lg.WriteMessage(level, message, metainfo)
 	}
+}
+
+func reviewDependencies(conf *config.Config) {
+
+	if stringarr.Include(conf.Api.Logs, ELASTIC) && conf.Elastic.Url == "" {
+		log.Fatalf("elastic server dependency enabled but not configured, check config yml file.")
+		os.Exit(2)
+	}
+
 }

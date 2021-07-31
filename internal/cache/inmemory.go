@@ -52,3 +52,8 @@ func (nc *inMemoryClient) SetValue(key string, value interface{}, expiration tim
 	nc.values[key] = aux
 	return true
 }
+func (nc *inMemoryClient) DeleteValue(key string) bool {
+
+	delete(nc.values, key)
+	return true
+}

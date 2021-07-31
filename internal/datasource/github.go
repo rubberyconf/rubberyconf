@@ -27,18 +27,22 @@ func NewDataSourceGithub() *DataSourceGithub {
 	return githubDataSource
 }
 
-func (source *DataSourceGithub) GetFeature(partialUrl string) (interface{}, bool) {
-	log.Panicf("error github not implemented yet")
-	return nil, false
-}
-
-func (source *DataSourceGithub) DeleteFeature(feature string) bool {
+func (source *DataSourceGithub) GetFeature(feature *Feature) bool {
 	log.Panicf("error github not implemented yet")
 	return false
 }
 
-func (source *DataSourceGithub) CreateFeature(feature string, featureDescription interface{}) bool {
-
-	log.Panicf("error github not implemented yet")
+func (source *DataSourceGithub) DeleteFeature(feature Feature) bool {
+	log.Panicf(errorMessage)
 	return false
+}
+
+func (source *DataSourceGithub) CreateFeature(feature Feature) bool {
+
+	log.Panicf(errorMessage)
+	return false
+}
+
+func (source *DataSourceGithub) EnableFeature(keys map[string]string) (Feature, bool) {
+	return gitEnableFeature(keys)
 }

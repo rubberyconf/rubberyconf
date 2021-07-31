@@ -10,6 +10,7 @@ import (
 type IDataStorage interface {
 	SetValue(key string, value interface{}, timeout time.Duration) bool
 	GetValue(key string) (interface{}, bool)
+	DeleteValue(key string) bool
 }
 
 const (
@@ -18,7 +19,7 @@ const (
 	NONE   string = "None"
 )
 
-func SelectStorage(conf *config.Config) IDataStorage {
+func SelectCache(conf *config.Config) IDataStorage {
 
 	var res IDataStorage
 	typeStorage := conf.Api.Cache

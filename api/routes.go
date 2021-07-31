@@ -26,12 +26,24 @@ var routes = Routes{
 		"configuration",
 		"GET",
 		"/conf/{feature}/{branch}",
-		handlers.Configuration,
+		handlers.ConfigurationGET,
 	},
 	Route{
 		"configuration",
 		"GET",
 		"/conf/{feature}",
-		handlers.Configuration,
+		handlers.ConfigurationGET,
+	},
+	Route{
+		"configuration",
+		"POST",
+		"/conf/{feature}",
+		handlers.ConfigurationPOST,
+	},
+	Route{
+		"configuration",
+		"DELETE",
+		"/conf/{feature}",
+		handlers.ConfigurationDELETE,
 	},
 }

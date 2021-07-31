@@ -1,10 +1,11 @@
 api: #rubberyconf server
   port: 8080
-  cache: "InMemory" #options: InMemory, Redis or None
-  source: "Gogs" #options: InMemory, Gogs or Github
+  cache: "None" #options: InMemory, Redis or None
+  source: "InMemory" #options: InMemory, Gogs or Github
   logs: 
     - Console
     - Elastic
+  default_ttl: "10s"
 
 database: 
   collections:

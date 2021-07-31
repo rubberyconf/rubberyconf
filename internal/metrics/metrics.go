@@ -14,8 +14,8 @@ import (
 )
 
 type Metrics struct {
-	client            *mongo.Client
-	ctx               context.Context
+	client *mongo.Client
+	//ctx               context.Context
 	metricsCollection *mongo.Collection
 }
 
@@ -30,15 +30,14 @@ type MongoMetrics struct {
 var (
 	metrics   *Metrics
 	mongoOnce sync.Once
+	ctx       context.Context
 )
 
-func CreateMetrics() *Metrics {
-	metrics = new(Metrics)
-	metrics.connect()
-	return metrics
-}
-
 func GetMetrics() *Metrics {
+	mongoOnce.Do(func() {
+		metrics = new(Metrics)
+		metrics.connect()
+	})
 	return metrics
 }
 
@@ -66,7 +65,7 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 	newdocument := false
 	var metricRegister MongoMetrics
 	filter := bson.D{{"feature", feature}}
-	err := metric.metricsCollection.FindOne(metrics.ctx, filter).Decode(&metricRegister)
+	err := metric.metricsCollection.FindOne(ctx, filter).Decode(&metricRegister)
 	if err == mongo.ErrNoDocuments {
 		newdocument = true
 	} else if err != nil {
@@ -82,7 +81,7 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 			UpdatedAt: time.Now(),
 			Counter:   0,
 		}
-		_, err := metric.metricsCollection.InsertOne(metric.ctx, newDoc)
+		_, err := metric.metricsCollection.InsertOne(ctx, newDoc)
 		if err != nil {
 			log.Fatal(err)
 			return nil, err
@@ -100,7 +99,7 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 }
 func (metric *Metrics) storeMetrics(metricRegister *MongoMetrics) (bool, error) {
 
-	_, err := metric.metricsCollection.UpdateOne(metric.ctx,
+	_, err := metric.metricsCollection.UpdateOne(ctx,
 		bson.D{{"feature", metricRegister.Feature}},
 		bson.D{{"$set", bson.D{{"counter", metricRegister.Counter}}}})
 
@@ -139,7 +138,7 @@ func (metric *Metrics) Update(feature string) (*MongoMetrics, error) {
 
 func (metric *Metrics) Remove(feature string) (bool, error) {
 
-	_, err := metric.metricsCollection.DeleteMany(metrics.ctx, bson.D{{"feature", feature}})
+	_, err := metric.metricsCollection.DeleteMany(ctx, bson.D{{"feature", feature}})
 	if err != nil {
 		return false, err
 	}
@@ -148,34 +147,31 @@ func (metric *Metrics) Remove(feature string) (bool, error) {
 
 func (metric *Metrics) connect() {
 
-	mongoOnce.Do(func() {
+	conf := config.GetConfiguration()
+	clientOptions := options.Client().ApplyURI(conf.Database.Url)
+	client, err := mongo.NewClient(clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	metrics.client = client
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//metrics.ctx = ctx
+	//defer client.Disconnect(ctx)
 
-		conf := config.GetConfiguration()
-		clientOptions := options.Client().ApplyURI(conf.Database.Url)
-		client, err := mongo.NewClient(clientOptions)
-		if err != nil {
-			log.Fatal(err)
-		}
-		metrics.client = client
-		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		err = client.Connect(ctx)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = client.Ping(context.TODO(), nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		metrics.ctx = ctx
-		//defer client.Disconnect(ctx)
+	database := client.Database(conf.Database.DatabaseName)
+	metricsCollection := database.Collection(conf.Database.Collections.Metrics)
 
-		database := client.Database(conf.Database.DatabaseName)
-		metricsCollection := database.Collection(conf.Database.Collections.Metrics)
-
-		metrics.metricsCollection = metricsCollection
-		//res, err := metricsCollection.InsertOne(ctx, bson.D{{"name", "pi"}, {"value", 3.14159}})
-		//id := res.InsertedID
-		//log.Printf("%d", id)
-	})
+	metrics.metricsCollection = metricsCollection
+	//res, err := metricsCollection.InsertOne(ctx, bson.D{{"name", "pi"}, {"value", 3.14159}})
+	//id := res.InsertedID
+	//log.Printf("%d", id)
 
 }

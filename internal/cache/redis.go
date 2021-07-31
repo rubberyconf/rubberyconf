@@ -60,3 +60,14 @@ func (aux *redisClient) SetValue(key string, value interface{}, expiration time.
 		return true
 	}
 }
+
+func (aux *redisClient) DeleteValue(key string) bool {
+
+	err := aux.rbd.Del(ctx, key).Err()
+	if err != nil {
+		log.Fatalln(err)
+		return false
+	} else {
+		return true
+	}
+}

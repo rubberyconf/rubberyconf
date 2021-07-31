@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"encoding/json"
 	"log"
 	"sync"
 )
@@ -21,6 +22,11 @@ func NewConsoleLog() *ConsoleLog {
 	return consoleLogging
 }
 
-func (lg *ConsoleLog) WriteMessage(message string) {
-	log.Printf("%s", message)
+func (lg *ConsoleLog) WriteMessage(level string, message string, metainfo interface{}) {
+	if metainfo == nil {
+		log.Printf("%s - %s", level, message)
+	} else {
+		bytearr, _ := json.Marshal(metainfo)
+		log.Printf("%s - %s \n %v \n", level, message, string(bytearr))
+	}
 }

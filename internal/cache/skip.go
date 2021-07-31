@@ -25,6 +25,10 @@ func (nc *skip) GetValue(key string) (interface{}, bool) {
 	return "", true
 }
 
+func (nc *skip) DeleteValue(key string) bool {
+	return true
+}
+
 func (nc *skip) SetValue(key string, value interface{}, expiration time.Duration) bool {
 	return true
 }
