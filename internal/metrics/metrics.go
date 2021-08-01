@@ -14,8 +14,7 @@ import (
 )
 
 type Metrics struct {
-	client *mongo.Client
-	//ctx               context.Context
+	client            *mongo.Client
 	metricsCollection *mongo.Collection
 }
 
@@ -43,25 +42,6 @@ func GetMetrics() *Metrics {
 
 func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 
-	/*
-		conf := config.GetConfiguration()
-
-		clientOptions := options.Client().ApplyURI(conf.Database.Url)
-		client, err := mongo.NewClient(clientOptions)
-		if err != nil {
-			log.Fatal(err)
-		}
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		err = client.Connect(ctx)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer client.Disconnect(ctx)
-		quickstartDatabase := client.Database(conf.Database.DatabaseName)
-		metricsCollection := quickstartDatabase.Collection(conf.Database.Collections.Metrics)
-	*/
-
 	newdocument := false
 	var metricRegister MongoMetrics
 	filter := bson.D{{"feature", feature}}
@@ -70,7 +50,6 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 		newdocument = true
 	} else if err != nil {
 		log.Fatal(err)
-		//return false, err
 	}
 
 	if newdocument {
@@ -86,14 +65,8 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 			log.Fatal(err)
 			return nil, err
 		}
-		//err = metric.metricsCollection.FindOne(metrics.ctx, bson.M{"_id": feature}).Decode(&metricRegister)
-		//if err != nil {
-		//	log.Fatal(err)
-		//	return nil, err
-		//}
 		return &newDoc, nil
 	} else {
-		//defer client.Disconnect(ctx)
 		return &metricRegister, nil
 	}
 }
@@ -163,15 +136,11 @@ func (metric *Metrics) connect() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//metrics.ctx = ctx
 	//defer client.Disconnect(ctx)
 
 	database := client.Database(conf.Database.DatabaseName)
 	metricsCollection := database.Collection(conf.Database.Collections.Metrics)
 
 	metrics.metricsCollection = metricsCollection
-	//res, err := metricsCollection.InsertOne(ctx, bson.D{{"name", "pi"}, {"value", 3.14159}})
-	//id := res.InsertedID
-	//log.Printf("%d", id)
 
 }

@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
-	"github.com/rubberyconf/rubberyconf/stringarr"
+	"github.com/rubberyconf/rubberyconf/internal/stringarr"
 )
 
 type iLogs interface {

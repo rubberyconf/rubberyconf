@@ -24,7 +24,7 @@ func TestInRedisOptions(t *testing.T) {
 	conf := config.GetConfiguration()
 	if conf == nil {
 		path, _ := os.Getwd()
-		config.NewConfiguration(filepath.Join(path, "../config/local.yml"))
+		config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
 	}
 
 	storage := NewDataStorageRedis()
