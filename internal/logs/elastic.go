@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"reflect"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"github.com/rubberyconf/rubberyconf/internal/config"
+
+	"github.com/matishsiao/goInfo"
 )
 
 type ElasticLog struct {
@@ -20,9 +22,11 @@ type ElasticLog struct {
 }
 
 type elasticDocs struct {
-	Level    string
-	Message  string
-	Metainfo interface{}
+	Level     string
+	Message   string
+	Metainfo  interface{}
+	TimeStamp time.Time
+	OsInfo    *goInfo.GoInfoObject
 }
 
 var (
@@ -55,14 +59,17 @@ func NewElasticLog() *ElasticLog {
 func jsonStruct(doc elasticDocs) string {
 
 	// Create struct instance of the Elasticsearch fields struct object
+	gi := goInfo.GetInfo()
 	docStruct := &elasticDocs{
-		Level:   doc.Level,
-		Message: doc.Message,
+		Level:     doc.Level,
+		Message:   doc.Message,
+		TimeStamp: time.Now(), //.Format("2020-12-01 13:00:00") ,
+		OsInfo:    gi,
 	}
 	docStruct.Metainfo = doc.Metainfo
 
-	fmt.Println("\ndocStruct:", docStruct)
-	fmt.Println("docStruct TYPE:", reflect.TypeOf(docStruct))
+	//fmt.Println("\ndocStruct:", docStruct)
+	//fmt.Println("docStruct TYPE:", reflect.TypeOf(docStruct))
 
 	// Marshal the struct to JSON and check for errors
 	b, err := json.Marshal(docStruct)
@@ -85,8 +92,8 @@ func (eg *ElasticLog) WriteMessage(level string, message string, metainfo interf
 		Refresh: "true",
 	}
 	res, err := req.Do(context.Background(), eg.es)
-	if err != nil {
-		log.Fatalf("Error getting response: %s", err)
+	if err != nil && res.StatusCode == 201 {
+		log.Fatalf("Error getting response from Elastic error: %v", err)
 	}
 	defer res.Body.Close()
 

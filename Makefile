@@ -22,7 +22,7 @@ coverage:
 testcoverage: test coverage
 
 build:
-	$(GOBUILD) -o $(BINARY_NAME) -v
+	$(GOBUILD) -o ./bin/$(BINARY_NAME) -v cmd/server/main.go
 
 clean: 
 	$(GOCLEAN)

@@ -16,6 +16,7 @@
 
 .database/
 .repo/
+bin/
 .repodb/
 __debug_bin
 .env

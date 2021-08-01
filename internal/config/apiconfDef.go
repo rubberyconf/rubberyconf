@@ -7,6 +7,9 @@ type Config struct {
 		Source     string   `yaml:"source", envconfig:"RUBBERYCONF_TYPE"`
 		Logs       []string `yaml:"logs"`
 		DefaultTTL string   `yaml:"default_ttl", envconfig:"RUBBERYCONG_DEFAULT_TTL", json:"default_ttl"`
+		Options    struct {
+			LogLevel string `yaml:"loglevel", envconfig:"RUBBERYCONG_LOGLEVEL"`
+		} `yaml:"options"`
 	} `yaml:"api"`
 	Database struct {
 		Collections struct {

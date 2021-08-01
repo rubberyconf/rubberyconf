@@ -17,9 +17,10 @@ const (
 	CONSOLE string = "Console"
 	ELASTIC string = "Elastic"
 
-	INFO  string = "warning"
-	DEBUG string = "debug"
-	ERROR string = "error"
+	INFO    string = "info"
+	DEBUG   string = "debug"
+	ERROR   string = "error"
+	WARNING string = "warning"
 )
 
 type Logs struct {
@@ -54,8 +55,10 @@ func GetLogs() *Logs {
 
 func (logs *Logs) WriteMessage(level string, message string, metainfo interface{}) {
 
-	for _, lg := range logs.logs {
-		lg.WriteMessage(level, message, metainfo)
+	if checkLevel(level) {
+		for _, lg := range logs.logs {
+			lg.WriteMessage(level, message, metainfo)
+		}
 	}
 }
 
@@ -65,5 +68,32 @@ func reviewDependencies(conf *config.Config) {
 		log.Fatalf("elastic server dependency enabled but not configured, check config yml file.")
 		os.Exit(2)
 	}
+
+}
+
+func checkLevel(level string) bool {
+
+	conf := config.GetConfiguration()
+	levelThreshold := conf.Api.Options.LogLevel
+	switch levelThreshold {
+	case DEBUG:
+		return true
+	case INFO:
+		if level == ERROR ||
+			level == INFO ||
+			level == WARNING {
+			return true
+		}
+	case WARNING:
+		if level == ERROR ||
+			level == WARNING {
+			return true
+		}
+	case ERROR:
+		if level == ERROR {
+			return true
+		}
+	}
+	return false
 
 }

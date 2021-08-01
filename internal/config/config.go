@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"log"
 	"os"
 	"sync"
@@ -21,14 +20,9 @@ func GetConfiguration() *Config {
 func NewConfiguration(filePath string) *Config {
 
 	onceConfig.Do(func() {
-
 		cfgSingleton = new(Config)
 		cfgSingleton.readFile(filePath)
 		cfgSingleton.readEnv()
-
-		b, _ := json.MarshalIndent(cfgSingleton, "", "   ")
-		//log.Printf("Configuration loaded: %+v", *cfgSingleton)
-		log.Printf("Configuration loaded:\n%s\n----", string(b))
 	})
 	return cfgSingleton
 }

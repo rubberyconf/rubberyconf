@@ -6,6 +6,8 @@ api: #rubberyconf server
     - Console
     - Elastic
   default_ttl: "10s"
+  options:
+    loglevel: "debug" #options: debug,info,error,warning 
 
 database: 
   collections:
