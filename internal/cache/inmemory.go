@@ -3,10 +3,12 @@ package cache
 import (
 	"sync"
 	"time"
+
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
 type itemInMemory struct {
-	value    interface{}
+	value    *feature.FeatureDefinition
 	ttl      time.Duration
 	initTime time.Time
 }
@@ -29,31 +31,32 @@ func NewDataStorageInMemory() *inMemoryClient {
 	return inMemClient
 }
 
-func (nc *inMemoryClient) GetValue(key string) (interface{}, bool) {
+func (nc *inMemoryClient) GetValue(key string) (*feature.FeatureDefinition, bool, error) {
+	var found bool
+	var content itemInMemory
 
-	val, ok := nc.values[key]
-	if !ok {
-		return nil, true
+	if content, found = nc.values[key]; !found {
+		return nil, false, nil
 	}
 	currentTime := time.Now()
-	diff := currentTime.Sub(val.initTime)
+	diff := currentTime.Sub(content.initTime)
 
-	if diff > val.ttl {
-		return nil, true
+	if diff > content.ttl {
+		return nil, false, nil
 	} else {
-		return val.value, false
+		return content.value, true, nil
 	}
 
 }
 
-func (nc *inMemoryClient) SetValue(key string, value interface{}, expiration time.Duration) bool {
+func (nc *inMemoryClient) SetValue(key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
 
 	aux := itemInMemory{value: value, ttl: expiration, initTime: time.Now()}
 	nc.values[key] = aux
-	return true
+	return true, nil
 }
-func (nc *inMemoryClient) DeleteValue(key string) bool {
+func (nc *inMemoryClient) DeleteValue(key string) (bool, error) {
 
 	delete(nc.values, key)
-	return true
+	return true, nil
 }

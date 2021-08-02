@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,35 +9,58 @@ import (
 	"time"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 func TestInRedisOptions(t *testing.T) {
 
-	var tests = []struct {
-		key, value string
-		duration   time.Duration
-		want       string
-	}{
-		{"key1", "hello1", 1 * time.Second, "hello1"},  // retrieve value with corret TTL
-		{"key2", "hello2", 100 * time.Millisecond, ""}, //retrieve value with TTL completed
-	}
+	tests := getCommonScenarios()
 
 	conf := config.GetConfiguration()
 	if conf == nil {
 		path, _ := os.Getwd()
-		config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
+		conf = config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
 	}
+
+	ctx := context.Background()
+	req := testcontainers.ContainerRequest{
+		Image:        "redis:latest",
+		ExposedPorts: []string{"6379/tcp"},
+		WaitingFor:   wait.ForLog("Ready to accept connections"),
+	}
+	redisC, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	defer redisC.Terminate(ctx)
+
+	endpoint, err := redisC.Endpoint(ctx, "")
+	if err != nil {
+		t.Error(err)
+	}
+
+	// hack config to work with testcontainers
+	conf.Redis.Url = endpoint
+	conf.Redis.Username = ""
+	conf.Redis.Password = ""
 
 	storage := NewDataStorageRedis()
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("key: %s, value: %s, duration: %d", tt.key, tt.value, tt.duration)
 		t.Run(testname, func(t *testing.T) {
-			storage.SetValue(tt.key, tt.value, tt.duration)
+			result, err := storage.SetValue(tt.key, tt.value, tt.duration)
+			if !result || err != nil {
+				t.Errorf("Imposible to store this object")
+			}
 			time.Sleep(500 * time.Millisecond)
-			res, err := storage.GetValue(tt.key)
-			if !err && res != tt.want {
-				t.Errorf("got '%s', want '%s'", res, tt.want)
+			_, found, err := storage.GetValue(tt.key)
+			if err != nil && found == tt.found {
+				t.Errorf("got '%t', want '%t'", found, tt.found)
 			}
 		})
 	}

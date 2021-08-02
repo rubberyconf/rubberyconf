@@ -3,6 +3,8 @@ package cache
 import (
 	"sync"
 	"time"
+
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
 type skip struct {
@@ -21,14 +23,15 @@ func NewDataStorageSkip() *skip {
 	return skipped
 }
 
-func (nc *skip) GetValue(key string) (interface{}, bool) {
-	return nil, true
+func (nc *skip) GetValue(key string) (*feature.FeatureDefinition, bool, error) {
+	found := false
+	return nil, found, nil
 }
 
-func (nc *skip) DeleteValue(key string) bool {
-	return true
+func (nc *skip) DeleteValue(key string) (bool, error) {
+	return true, nil
 }
 
-func (nc *skip) SetValue(key string, value interface{}, expiration time.Duration) bool {
-	return true
+func (nc *skip) SetValue(key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
+	return true, nil
 }

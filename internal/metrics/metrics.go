@@ -2,11 +2,14 @@ package metrics
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/internal/logs"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -49,7 +52,7 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 	if err == mongo.ErrNoDocuments {
 		newdocument = true
 	} else if err != nil {
-		log.Fatal(err)
+		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb doesn't asnwered properly when running FindOne feature %s", feature), err)
 	}
 
 	if newdocument {
@@ -62,7 +65,7 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 		}
 		_, err := metric.metricsCollection.InsertOne(ctx, newDoc)
 		if err != nil {
-			log.Fatal(err)
+			logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb didn't create a new metric document for feature: %s", feature), err)
 			return nil, err
 		}
 		return &newDoc, nil
@@ -124,17 +127,20 @@ func (metric *Metrics) connect() {
 	clientOptions := options.Client().ApplyURI(conf.Database.Url)
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		logs.GetLogs().WriteMessage("error", "unable to cerate monogo client", err)
+		os.Exit(2)
 	}
 	metrics.client = client
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
-		log.Fatal(err)
+		logs.GetLogs().WriteMessage("error", "unable to connect monogo client", err)
+		os.Exit(2)
 	}
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		logs.GetLogs().WriteMessage("error", "mongodb doesn't answer ping", err)
+		os.Exit(2)
 	}
 	//defer client.Disconnect(ctx)
 

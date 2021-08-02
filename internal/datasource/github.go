@@ -5,6 +5,8 @@ import (
 
 	"log"
 	"sync"
+
+	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
 // TODO: to be implemented
@@ -27,9 +29,9 @@ func NewDataSourceGithub() *DataSourceGithub {
 	return githubDataSource
 }
 
-func (source *DataSourceGithub) GetFeature(feature *Feature) bool {
+func (source *DataSourceGithub) GetFeature(feature *Feature) (bool, error) {
 	log.Panicf("error github not implemented yet")
-	return false
+	return false, nil
 }
 
 func (source *DataSourceGithub) DeleteFeature(feature Feature) bool {
@@ -45,4 +47,7 @@ func (source *DataSourceGithub) CreateFeature(feature Feature) bool {
 
 func (source *DataSourceGithub) EnableFeature(keys map[string]string) (Feature, bool) {
 	return gitEnableFeature(keys)
+}
+func (source *DataSourceGithub) reviewDependencies(conf *config.Config) {
+	reviewDependencies(conf)
 }

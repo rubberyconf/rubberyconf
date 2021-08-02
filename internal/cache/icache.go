@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
 type IDataStorage interface {
-	SetValue(key string, value interface{}, timeout time.Duration) bool
-	GetValue(key string) (interface{}, bool)
-	DeleteValue(key string) bool
+	SetValue(key string, value *feature.FeatureDefinition, timeout time.Duration) (bool, error)
+	GetValue(key string) (*feature.FeatureDefinition, bool, error)
+	DeleteValue(key string) (bool, error)
 }
 
 const (

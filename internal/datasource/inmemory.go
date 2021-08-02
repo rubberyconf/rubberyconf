@@ -2,10 +2,13 @@ package datasource
 
 import (
 	"sync"
+
+	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
 type DataSourceInMemory struct {
-	features map[string]interface{}
+	features map[string]feature.FeatureDefinition
 }
 
 var (
@@ -17,14 +20,19 @@ func NewDataSourceInMemory() *DataSourceInMemory {
 
 	onceInMemory.Do(func() {
 		inMemDataSource = new(DataSourceInMemory)
-		inMemDataSource.features = make(map[string]interface{})
+		inMemDataSource.features = make(map[string]feature.FeatureDefinition)
 	})
 	return inMemDataSource
 }
-func (source *DataSourceInMemory) GetFeature(feature *Feature) bool {
-	var ok bool
-	feature.Value, ok = source.features[feature.Key]
-	return !ok
+func (source *DataSourceInMemory) GetFeature(feature *Feature) (bool, error) {
+	var found bool
+	//var content feature.FeatureDefinition
+	if content, found := source.features[feature.Key]; found {
+		feature.Value = &content
+	} else {
+		feature.Value = nil
+	}
+	return found, nil
 }
 
 func (source *DataSourceInMemory) DeleteFeature(feature Feature) bool {
@@ -38,16 +46,13 @@ func (source *DataSourceInMemory) DeleteFeature(feature Feature) bool {
 }
 
 func (source *DataSourceInMemory) CreateFeature(feature Feature) bool {
-	source.features[feature.Key] = feature.Value
+	source.features[feature.Key] = *feature.Value
 	return true
 }
 
 func (source *DataSourceInMemory) EnableFeature(keys map[string]string) (Feature, bool) {
-	fe1 := Feature{Key: "", Value: nil}
-	key := keys[keyFeature]
-	if key == "" {
-		return fe1, false
-	}
-	fe1.Key = key
-	return fe1, true
+	return enableFeature(keys)
+}
+
+func (source *DataSourceInMemory) reviewDependencies(conf *config.Config) {
 }

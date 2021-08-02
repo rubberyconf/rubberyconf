@@ -2,12 +2,15 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/internal/feature"
+	"github.com/rubberyconf/rubberyconf/internal/logs"
 )
 
 type redisClient struct {
@@ -40,34 +43,48 @@ func NewDataStorageRedis() *redisClient {
 	return redisClnt
 }
 
-func (aux *redisClient) GetValue(key string) (interface{}, bool) {
+func (aux *redisClient) GetValue(key string) (*feature.FeatureDefinition, bool, error) {
 
 	val, err := aux.rbd.Get(ctx, key).Result()
-	if err != nil {
-		return nil, true
+	if err == redis.Nil {
+		return nil, false, nil
 	}
-	return val, false
+	if err != nil {
+		logs.GetLogs().WriteMessage("error", fmt.Sprintf("error geting value from redis key: %s", key), err)
+		return nil, false, err
+	}
+	var feat *feature.FeatureDefinition
+	feat = new(feature.FeatureDefinition)
+	err = feat.LoadFromString(val)
+	if err != nil {
+		return nil, false, err
+	}
+	return feat, true, nil
 
 }
 
-func (aux *redisClient) SetValue(key string, value interface{}, expiration time.Duration) bool {
+func (aux *redisClient) SetValue(key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
 
-	err := aux.rbd.Set(ctx, key, value, expiration).Err()
+	svalue, err := value.ToString()
 	if err != nil {
-		log.Fatalln(err)
-		return false
+		return false, err
+	}
+	err = aux.rbd.Set(ctx, key, svalue, expiration).Err()
+	if err != nil {
+		logs.GetLogs().WriteMessage("error", fmt.Sprintf("error seting value to redis key: %s", key), err)
+		return false, err
 	} else {
-		return true
+		return true, nil
 	}
 }
 
-func (aux *redisClient) DeleteValue(key string) bool {
+func (aux *redisClient) DeleteValue(key string) (bool, error) {
 
 	err := aux.rbd.Del(ctx, key).Err()
 	if err != nil {
-		log.Fatalln(err)
-		return false
+		logs.GetLogs().WriteMessage("error", fmt.Sprintf("error seting value to redis key: %s", key), err)
+		return false, err
 	} else {
-		return true
+		return true, nil
 	}
 }

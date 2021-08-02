@@ -8,25 +8,21 @@ import (
 
 func TestInMemoryOptions(t *testing.T) {
 
-	var tests = []struct {
-		key, value string
-		duration   time.Duration
-		want       string
-	}{
-		{"key1", "hello1", 1 * time.Second, "hello1"},  // retrieve value with corret TTL
-		{"key2", "hello2", 400 * time.Millisecond, ""}, //retrieve value with TTL completed
-	}
+	tests := getCommonScenarios()
 
 	storage := NewDataStorageInMemory()
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("key: %s, value: %s, duration: %d", tt.key, tt.value, tt.duration)
 		t.Run(testname, func(t *testing.T) {
-			storage.SetValue(tt.key, tt.value, tt.duration)
+			completed, err := storage.SetValue(tt.key, tt.value, tt.duration)
+			if !completed || err != nil {
+				t.Errorf(" error storing value key: %s", tt.key)
+			}
 			time.Sleep(500 * time.Millisecond)
-			res, err := storage.GetValue(tt.key)
-			if !err && res != tt.want {
-				t.Errorf("got %s, want %s", res, tt.want)
+			_, found, err := storage.GetValue(tt.key)
+			if err != nil && found == tt.found {
+				t.Errorf("got %t, want %t", found, tt.found)
 			}
 		})
 	}

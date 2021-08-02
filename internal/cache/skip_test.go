@@ -8,25 +8,23 @@ import (
 
 func TestSkipCache(t *testing.T) {
 
-	var tests = []struct {
-		key, value string
-		duration   time.Duration
-		want       string
-	}{
-		{"key1", "hello1", 1 * time.Second, ""},        // retrieve value with corret TTL
-		{"key2", "hello2", 400 * time.Millisecond, ""}, //retrieve value with TTL completed
+	var tests = []testCase{
+		{"key1", nil, 1 * time.Second, nil, false},
 	}
 
 	storage := NewDataStorageSkip()
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("key: %s, value: %s, duration: %d", tt.key, tt.value, tt.duration)
+		testname := fmt.Sprintf("key: %s, duration: %d", tt.key, tt.duration)
 		t.Run(testname, func(t *testing.T) {
-			storage.SetValue(tt.key, tt.value, tt.duration)
-			time.Sleep(500 * time.Millisecond)
-			res, err := storage.GetValue(tt.key)
-			if !err && res != tt.want {
-				t.Errorf("got %s, want %s", res, tt.want)
+			found, err := storage.SetValue(tt.key, tt.value, tt.duration)
+			if err == nil && found == false {
+				t.Errorf("error setting key %s", tt.key)
+			}
+			time.Sleep(100 * time.Millisecond)
+			_, found, err = storage.GetValue(tt.key)
+			if err != nil && found == tt.found {
+				t.Errorf("got %t, want %t", found, tt.found)
 			}
 		})
 	}

@@ -1,7 +1,7 @@
 api: #rubberyconf server
   port: 8080
   cache: "None" #options: InMemory, Redis or None
-  source: "InMemory" #options: InMemory, Gogs or Github
+  source: "InMemory" #options: Mongodb, InMemory, Gogs or Github
   logs: 
     - Console
     - Elastic
@@ -13,6 +13,7 @@ database:
   collections:
     metrics: "metrics"
     sessionids: "usersessions"
+    features: "features"
   databasename: "rubberyconfdb"
   url: "mongodb://localhost:27017/?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
 

@@ -2,25 +2,27 @@ package datasource
 
 import (
 	"log"
-	"os"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
 type Feature struct {
 	Key   string
-	Value interface{}
+	Value *feature.FeatureDefinition
 }
 
 type IDataSource interface {
 	EnableFeature(aux map[string]string) (Feature, bool)
-	GetFeature(feature *Feature) bool
+	GetFeature(feature *Feature) (bool, error)
 	DeleteFeature(feature Feature) bool
 	CreateFeature(feature Feature) bool
+	reviewDependencies(conf *config.Config)
 }
 
 const (
 	GOGS       string = "Gogs"
+	MONGODB    string = "Mongodb"
 	GITHUB     string = "GitHub"
 	INMEMORY   string = "InMemory"
 	keyFeature string = "feature"
@@ -29,7 +31,6 @@ const (
 func SelectSource() IDataSource {
 
 	conf := config.GetConfiguration()
-	reviewDependencies(conf)
 	var res IDataSource
 	typeSource := conf.Api.Source
 	if typeSource == GOGS {
@@ -41,14 +42,7 @@ func SelectSource() IDataSource {
 	} else {
 		log.Fatal("no data source selected")
 	}
+	res.reviewDependencies(conf)
 
 	return res
-}
-
-func reviewDependencies(conf *config.Config) {
-	if (conf.Api.Source == GOGS || conf.Api.Source == GITHUB) &&
-		conf.GitServer.Url == "" {
-		log.Fatalf("git server dependency enabled but not configured, check config yml file.")
-		os.Exit(2)
-	}
 }
