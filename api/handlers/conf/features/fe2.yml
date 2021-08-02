@@ -1,0 +1,7 @@
+name: 'fe2'
+
+default:  
+  value: 
+    data: "{a:1}"
+    type: "json"
+

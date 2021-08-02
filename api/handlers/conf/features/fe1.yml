@@ -1,0 +1,7 @@
+name: 'fe1'
+
+default:  
+  value: 
+    data: "hello"
+    type: "string"
+
