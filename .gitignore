@@ -23,3 +23,6 @@ __debug_bin
 docker.env
 docker-env/
 !docker-env/template.env
+config/
+!config/template.yml
+
