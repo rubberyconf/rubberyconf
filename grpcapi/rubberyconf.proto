@@ -1,18 +1,44 @@
 syntax = "proto3";
-
+import "google/protobuf/any.proto";
 package grpcapi;
 option go_package = "/grpcapipb";
 
-message rubberyConfRequest {
-    string name = 1;
+enum StatusType {
+        Success = 0;
+        BadRequest = 1;
+        InternalServerError = 2;
+        NotFound = 3;
+    }
+message featureIdRequest {
+    string featureName = 1;
 }
 
-message rubberyConfResponse {
-    string greeting = 1;
+message featureCreationRequest {
+    
+    message valueCls {
+        string data = 1;
+        string type = 2;
+    }
+
+    message defaultCls {
+        valueCls value = 1;
+    }
+
+    optional string name = 1;
+    defaultCls default = 2;
 }
+
+message featureResponse {
+    StatusType status = 1;
+}
+message featureFullResponse {
+    StatusType status = 1;
+    google.protobuf.Any  value = 2;
+}
+
 
 service rubberyConfService {
-    rpc get(rubberyConfRequest) returns (rubberyConfResponse) {};
-    rpc create(rubberyConfRequest) returns (rubberyConfResponse) {};
-    rpc delete(rubberyConfRequest) returns (rubberyConfResponse) {};
+    rpc get(featureIdRequest) returns (featureFullResponse) {};
+    rpc create(featureCreationRequest) returns (featureResponse) {};
+    rpc delete(featureIdRequest) returns (featureResponse) {};
 }

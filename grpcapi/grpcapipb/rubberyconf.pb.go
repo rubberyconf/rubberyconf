@@ -13,6 +13,7 @@ import (
 	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	reflect "reflect"
 	sync "sync"
 )
@@ -24,16 +25,68 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RubberyConfRequest struct {
+type StatusType int32
+
+const (
+	StatusType_Success             StatusType = 0
+	StatusType_BadRequest          StatusType = 1
+	StatusType_InternalServerError StatusType = 2
+	StatusType_NotFound            StatusType = 3
+)
+
+// Enum value maps for StatusType.
+var (
+	StatusType_name = map[int32]string{
+		0: "Success",
+		1: "BadRequest",
+		2: "InternalServerError",
+		3: "NotFound",
+	}
+	StatusType_value = map[string]int32{
+		"Success":             0,
+		"BadRequest":          1,
+		"InternalServerError": 2,
+		"NotFound":            3,
+	}
+)
+
+func (x StatusType) Enum() *StatusType {
+	p := new(StatusType)
+	*p = x
+	return p
+}
+
+func (x StatusType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (StatusType) Descriptor() protoreflect.EnumDescriptor {
+	return file_rubberyconf_proto_enumTypes[0].Descriptor()
+}
+
+func (StatusType) Type() protoreflect.EnumType {
+	return &file_rubberyconf_proto_enumTypes[0]
+}
+
+func (x StatusType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use StatusType.Descriptor instead.
+func (StatusType) EnumDescriptor() ([]byte, []int) {
+	return file_rubberyconf_proto_rawDescGZIP(), []int{0}
+}
+
+type FeatureIdRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	FeatureName string `protobuf:"bytes,1,opt,name=featureName,proto3" json:"featureName,omitempty"`
 }
 
-func (x *RubberyConfRequest) Reset() {
-	*x = RubberyConfRequest{}
+func (x *FeatureIdRequest) Reset() {
+	*x = FeatureIdRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_rubberyconf_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -41,13 +94,13 @@ func (x *RubberyConfRequest) Reset() {
 	}
 }
 
-func (x *RubberyConfRequest) String() string {
+func (x *FeatureIdRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RubberyConfRequest) ProtoMessage() {}
+func (*FeatureIdRequest) ProtoMessage() {}
 
-func (x *RubberyConfRequest) ProtoReflect() protoreflect.Message {
+func (x *FeatureIdRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_rubberyconf_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -59,28 +112,29 @@ func (x *RubberyConfRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RubberyConfRequest.ProtoReflect.Descriptor instead.
-func (*RubberyConfRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use FeatureIdRequest.ProtoReflect.Descriptor instead.
+func (*FeatureIdRequest) Descriptor() ([]byte, []int) {
 	return file_rubberyconf_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RubberyConfRequest) GetName() string {
+func (x *FeatureIdRequest) GetFeatureName() string {
 	if x != nil {
-		return x.Name
+		return x.FeatureName
 	}
 	return ""
 }
 
-type RubberyConfResponse struct {
+type FeatureCreationRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Greeting string `protobuf:"bytes,1,opt,name=greeting,proto3" json:"greeting,omitempty"`
+	Name    string                            `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Default *FeatureCreationRequestDefaultCls `protobuf:"bytes,2,opt,name=default,proto3" json:"default,omitempty"`
 }
 
-func (x *RubberyConfResponse) Reset() {
-	*x = RubberyConfResponse{}
+func (x *FeatureCreationRequest) Reset() {
+	*x = FeatureCreationRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_rubberyconf_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -88,13 +142,13 @@ func (x *RubberyConfResponse) Reset() {
 	}
 }
 
-func (x *RubberyConfResponse) String() string {
+func (x *FeatureCreationRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RubberyConfResponse) ProtoMessage() {}
+func (*FeatureCreationRequest) ProtoMessage() {}
 
-func (x *RubberyConfResponse) ProtoReflect() protoreflect.Message {
+func (x *FeatureCreationRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_rubberyconf_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -106,45 +160,286 @@ func (x *RubberyConfResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RubberyConfResponse.ProtoReflect.Descriptor instead.
-func (*RubberyConfResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use FeatureCreationRequest.ProtoReflect.Descriptor instead.
+func (*FeatureCreationRequest) Descriptor() ([]byte, []int) {
 	return file_rubberyconf_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *RubberyConfResponse) GetGreeting() string {
+func (x *FeatureCreationRequest) GetName() string {
 	if x != nil {
-		return x.Greeting
+		return x.Name
 	}
 	return ""
+}
+
+func (x *FeatureCreationRequest) GetDefault() *FeatureCreationRequestDefaultCls {
+	if x != nil {
+		return x.Default
+	}
+	return nil
+}
+
+type FeatureResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status StatusType `protobuf:"varint,1,opt,name=status,proto3,enum=grpcapi.StatusType" json:"status,omitempty"`
+}
+
+func (x *FeatureResponse) Reset() {
+	*x = FeatureResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_rubberyconf_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FeatureResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureResponse) ProtoMessage() {}
+
+func (x *FeatureResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rubberyconf_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureResponse.ProtoReflect.Descriptor instead.
+func (*FeatureResponse) Descriptor() ([]byte, []int) {
+	return file_rubberyconf_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *FeatureResponse) GetStatus() StatusType {
+	if x != nil {
+		return x.Status
+	}
+	return StatusType_Success
+}
+
+type FeatureFullResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status StatusType `protobuf:"varint,1,opt,name=status,proto3,enum=grpcapi.StatusType" json:"status,omitempty"`
+	Value  *anypb.Any `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+}
+
+func (x *FeatureFullResponse) Reset() {
+	*x = FeatureFullResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_rubberyconf_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FeatureFullResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureFullResponse) ProtoMessage() {}
+
+func (x *FeatureFullResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rubberyconf_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureFullResponse.ProtoReflect.Descriptor instead.
+func (*FeatureFullResponse) Descriptor() ([]byte, []int) {
+	return file_rubberyconf_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *FeatureFullResponse) GetStatus() StatusType {
+	if x != nil {
+		return x.Status
+	}
+	return StatusType_Success
+}
+
+func (x *FeatureFullResponse) GetValue() *anypb.Any {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+type FeatureCreationRequestValueCls struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Data string `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+}
+
+func (x *FeatureCreationRequestValueCls) Reset() {
+	*x = FeatureCreationRequestValueCls{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_rubberyconf_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FeatureCreationRequestValueCls) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureCreationRequestValueCls) ProtoMessage() {}
+
+func (x *FeatureCreationRequestValueCls) ProtoReflect() protoreflect.Message {
+	mi := &file_rubberyconf_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureCreationRequestValueCls.ProtoReflect.Descriptor instead.
+func (*FeatureCreationRequestValueCls) Descriptor() ([]byte, []int) {
+	return file_rubberyconf_proto_rawDescGZIP(), []int{1, 0}
+}
+
+func (x *FeatureCreationRequestValueCls) GetData() string {
+	if x != nil {
+		return x.Data
+	}
+	return ""
+}
+
+func (x *FeatureCreationRequestValueCls) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+type FeatureCreationRequestDefaultCls struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Value *FeatureCreationRequestValueCls `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+}
+
+func (x *FeatureCreationRequestDefaultCls) Reset() {
+	*x = FeatureCreationRequestDefaultCls{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_rubberyconf_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *FeatureCreationRequestDefaultCls) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureCreationRequestDefaultCls) ProtoMessage() {}
+
+func (x *FeatureCreationRequestDefaultCls) ProtoReflect() protoreflect.Message {
+	mi := &file_rubberyconf_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureCreationRequestDefaultCls.ProtoReflect.Descriptor instead.
+func (*FeatureCreationRequestDefaultCls) Descriptor() ([]byte, []int) {
+	return file_rubberyconf_proto_rawDescGZIP(), []int{1, 1}
+}
+
+func (x *FeatureCreationRequestDefaultCls) GetValue() *FeatureCreationRequestValueCls {
+	if x != nil {
+		return x.Value
+	}
+	return nil
 }
 
 var File_rubberyconf_proto protoreflect.FileDescriptor
 
 var file_rubberyconf_proto_rawDesc = []byte{
 	0x0a, 0x11, 0x72, 0x75, 0x62, 0x62, 0x65, 0x72, 0x79, 0x63, 0x6f, 0x6e, 0x66, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x12, 0x07, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x22, 0x28, 0x0a, 0x12,
-	0x72, 0x75, 0x62, 0x62, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6e, 0x66, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x31, 0x0a, 0x13, 0x72, 0x75, 0x62, 0x62, 0x65, 0x72,
-	0x79, 0x43, 0x6f, 0x6e, 0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1a, 0x0a,
-	0x08, 0x67, 0x72, 0x65, 0x65, 0x74, 0x69, 0x6e, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x08, 0x67, 0x72, 0x65, 0x65, 0x74, 0x69, 0x6e, 0x67, 0x32, 0xe6, 0x01, 0x0a, 0x12, 0x72, 0x75,
-	0x62, 0x62, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6e, 0x66, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
-	0x12, 0x42, 0x0a, 0x03, 0x67, 0x65, 0x74, 0x12, 0x1b, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70,
-	0x69, 0x2e, 0x72, 0x75, 0x62, 0x62, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6e, 0x66, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x72,
-	0x75, 0x62, 0x62, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6e, 0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x00, 0x12, 0x45, 0x0a, 0x06, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x1b,
-	0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x72, 0x75, 0x62, 0x62, 0x65, 0x72, 0x79,
-	0x43, 0x6f, 0x6e, 0x66, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x67, 0x72,
-	0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x72, 0x75, 0x62, 0x62, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6e,
-	0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x45, 0x0a, 0x06, 0x64,
-	0x65, 0x6c, 0x65, 0x74, 0x65, 0x12, 0x1b, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e,
-	0x72, 0x75, 0x62, 0x62, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6e, 0x66, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x72, 0x75, 0x62,
-	0x62, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x6e, 0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x22, 0x00, 0x42, 0x0c, 0x5a, 0x0a, 0x2f, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x70, 0x62,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x74, 0x6f, 0x12, 0x07, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x1a, 0x19, 0x67, 0x6f,
+	0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x61, 0x6e,
+	0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x34, 0x0a, 0x10, 0x66, 0x65, 0x61, 0x74, 0x75,
+	0x72, 0x65, 0x49, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x20, 0x0a, 0x0b, 0x66,
+	0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x0b, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x22, 0xf4, 0x01,
+	0x0a, 0x16, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x44, 0x0a, 0x07,
+	0x64, 0x65, 0x66, 0x61, 0x75, 0x6c, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a, 0x2e,
+	0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x64,
+	0x65, 0x66, 0x61, 0x75, 0x6c, 0x74, 0x43, 0x6c, 0x73, 0x52, 0x07, 0x64, 0x65, 0x66, 0x61, 0x75,
+	0x6c, 0x74, 0x1a, 0x32, 0x0a, 0x08, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x43, 0x6c, 0x73, 0x12, 0x12,
+	0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x64, 0x61,
+	0x74, 0x61, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x1a, 0x4c, 0x0a, 0x0a, 0x64, 0x65, 0x66, 0x61, 0x75, 0x6c,
+	0x74, 0x43, 0x6c, 0x73, 0x12, 0x3e, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x28, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x66, 0x65,
+	0x61, 0x74, 0x75, 0x72, 0x65, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x2e, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x43, 0x6c, 0x73, 0x52, 0x05, 0x76,
+	0x61, 0x6c, 0x75, 0x65, 0x22, 0x3e, 0x0a, 0x0f, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2b, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75,
+	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x13, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70,
+	0x69, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x54, 0x79, 0x70, 0x65, 0x52, 0x06, 0x73, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x22, 0x6e, 0x0a, 0x13, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x46,
+	0x75, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2b, 0x0a, 0x06, 0x73,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x13, 0x2e, 0x67, 0x72,
+	0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x54, 0x79, 0x70, 0x65,
+	0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x2a, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75,
+	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x41, 0x6e, 0x79, 0x52, 0x05, 0x76,
+	0x61, 0x6c, 0x75, 0x65, 0x2a, 0x50, 0x0a, 0x0a, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x54, 0x79,
+	0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x53, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x10, 0x00, 0x12,
+	0x0e, 0x0a, 0x0a, 0x42, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x10, 0x01, 0x12,
+	0x17, 0x0a, 0x13, 0x49, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x53, 0x65, 0x72, 0x76, 0x65,
+	0x72, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x10, 0x02, 0x12, 0x0c, 0x0a, 0x08, 0x4e, 0x6f, 0x74, 0x46,
+	0x6f, 0x75, 0x6e, 0x64, 0x10, 0x03, 0x32, 0xde, 0x01, 0x0a, 0x12, 0x72, 0x75, 0x62, 0x62, 0x65,
+	0x72, 0x79, 0x43, 0x6f, 0x6e, 0x66, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x40, 0x0a,
+	0x03, 0x67, 0x65, 0x74, 0x12, 0x19, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x66,
+	0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x49, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x1c, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72,
+	0x65, 0x46, 0x75, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
+	0x45, 0x0a, 0x06, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x1f, 0x2e, 0x67, 0x72, 0x70, 0x63,
+	0x61, 0x70, 0x69, 0x2e, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x67, 0x72, 0x70,
+	0x63, 0x61, 0x70, 0x69, 0x2e, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3f, 0x0a, 0x06, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65,
+	0x12, 0x19, 0x2e, 0x67, 0x72, 0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x66, 0x65, 0x61, 0x74, 0x75,
+	0x72, 0x65, 0x49, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x67, 0x72,
+	0x70, 0x63, 0x61, 0x70, 0x69, 0x2e, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0c, 0x5a, 0x0a, 0x2f, 0x67, 0x72, 0x70, 0x63,
+	0x61, 0x70, 0x69, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -159,23 +454,35 @@ func file_rubberyconf_proto_rawDescGZIP() []byte {
 	return file_rubberyconf_proto_rawDescData
 }
 
-var file_rubberyconf_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_rubberyconf_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_rubberyconf_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_rubberyconf_proto_goTypes = []interface{}{
-	(*RubberyConfRequest)(nil),  // 0: grpcapi.rubberyConfRequest
-	(*RubberyConfResponse)(nil), // 1: grpcapi.rubberyConfResponse
+	(StatusType)(0),                          // 0: grpcapi.StatusType
+	(*FeatureIdRequest)(nil),                 // 1: grpcapi.featureIdRequest
+	(*FeatureCreationRequest)(nil),           // 2: grpcapi.featureCreationRequest
+	(*FeatureResponse)(nil),                  // 3: grpcapi.featureResponse
+	(*FeatureFullResponse)(nil),              // 4: grpcapi.featureFullResponse
+	(*FeatureCreationRequestValueCls)(nil),   // 5: grpcapi.featureCreationRequest.valueCls
+	(*FeatureCreationRequestDefaultCls)(nil), // 6: grpcapi.featureCreationRequest.defaultCls
+	(*anypb.Any)(nil),                        // 7: google.protobuf.Any
 }
 var file_rubberyconf_proto_depIdxs = []int32{
-	0, // 0: grpcapi.rubberyConfService.get:input_type -> grpcapi.rubberyConfRequest
-	0, // 1: grpcapi.rubberyConfService.create:input_type -> grpcapi.rubberyConfRequest
-	0, // 2: grpcapi.rubberyConfService.delete:input_type -> grpcapi.rubberyConfRequest
-	1, // 3: grpcapi.rubberyConfService.get:output_type -> grpcapi.rubberyConfResponse
-	1, // 4: grpcapi.rubberyConfService.create:output_type -> grpcapi.rubberyConfResponse
-	1, // 5: grpcapi.rubberyConfService.delete:output_type -> grpcapi.rubberyConfResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	6, // 0: grpcapi.featureCreationRequest.default:type_name -> grpcapi.featureCreationRequest.defaultCls
+	0, // 1: grpcapi.featureResponse.status:type_name -> grpcapi.StatusType
+	0, // 2: grpcapi.featureFullResponse.status:type_name -> grpcapi.StatusType
+	7, // 3: grpcapi.featureFullResponse.value:type_name -> google.protobuf.Any
+	5, // 4: grpcapi.featureCreationRequest.defaultCls.value:type_name -> grpcapi.featureCreationRequest.valueCls
+	1, // 5: grpcapi.rubberyConfService.get:input_type -> grpcapi.featureIdRequest
+	2, // 6: grpcapi.rubberyConfService.create:input_type -> grpcapi.featureCreationRequest
+	1, // 7: grpcapi.rubberyConfService.delete:input_type -> grpcapi.featureIdRequest
+	4, // 8: grpcapi.rubberyConfService.get:output_type -> grpcapi.featureFullResponse
+	3, // 9: grpcapi.rubberyConfService.create:output_type -> grpcapi.featureResponse
+	3, // 10: grpcapi.rubberyConfService.delete:output_type -> grpcapi.featureResponse
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_rubberyconf_proto_init() }
@@ -185,7 +492,7 @@ func file_rubberyconf_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_rubberyconf_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RubberyConfRequest); i {
+			switch v := v.(*FeatureIdRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -197,7 +504,55 @@ func file_rubberyconf_proto_init() {
 			}
 		}
 		file_rubberyconf_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RubberyConfResponse); i {
+			switch v := v.(*FeatureCreationRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_rubberyconf_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*FeatureResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_rubberyconf_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*FeatureFullResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_rubberyconf_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*FeatureCreationRequestValueCls); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_rubberyconf_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*FeatureCreationRequestDefaultCls); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -214,13 +569,14 @@ func file_rubberyconf_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_rubberyconf_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      1,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_rubberyconf_proto_goTypes,
 		DependencyIndexes: file_rubberyconf_proto_depIdxs,
+		EnumInfos:         file_rubberyconf_proto_enumTypes,
 		MessageInfos:      file_rubberyconf_proto_msgTypes,
 	}.Build()
 	File_rubberyconf_proto = out.File
@@ -241,9 +597,9 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RubberyConfServiceClient interface {
-	Get(ctx context.Context, in *RubberyConfRequest, opts ...grpc.CallOption) (*RubberyConfResponse, error)
-	Create(ctx context.Context, in *RubberyConfRequest, opts ...grpc.CallOption) (*RubberyConfResponse, error)
-	Delete(ctx context.Context, in *RubberyConfRequest, opts ...grpc.CallOption) (*RubberyConfResponse, error)
+	Get(ctx context.Context, in *FeatureIdRequest, opts ...grpc.CallOption) (*FeatureFullResponse, error)
+	Create(ctx context.Context, in *FeatureCreationRequest, opts ...grpc.CallOption) (*FeatureResponse, error)
+	Delete(ctx context.Context, in *FeatureIdRequest, opts ...grpc.CallOption) (*FeatureResponse, error)
 }
 
 type rubberyConfServiceClient struct {
@@ -254,8 +610,8 @@ func NewRubberyConfServiceClient(cc grpc.ClientConnInterface) RubberyConfService
 	return &rubberyConfServiceClient{cc}
 }
 
-func (c *rubberyConfServiceClient) Get(ctx context.Context, in *RubberyConfRequest, opts ...grpc.CallOption) (*RubberyConfResponse, error) {
-	out := new(RubberyConfResponse)
+func (c *rubberyConfServiceClient) Get(ctx context.Context, in *FeatureIdRequest, opts ...grpc.CallOption) (*FeatureFullResponse, error) {
+	out := new(FeatureFullResponse)
 	err := c.cc.Invoke(ctx, "/grpcapi.rubberyConfService/get", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -263,8 +619,8 @@ func (c *rubberyConfServiceClient) Get(ctx context.Context, in *RubberyConfReque
 	return out, nil
 }
 
-func (c *rubberyConfServiceClient) Create(ctx context.Context, in *RubberyConfRequest, opts ...grpc.CallOption) (*RubberyConfResponse, error) {
-	out := new(RubberyConfResponse)
+func (c *rubberyConfServiceClient) Create(ctx context.Context, in *FeatureCreationRequest, opts ...grpc.CallOption) (*FeatureResponse, error) {
+	out := new(FeatureResponse)
 	err := c.cc.Invoke(ctx, "/grpcapi.rubberyConfService/create", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -272,8 +628,8 @@ func (c *rubberyConfServiceClient) Create(ctx context.Context, in *RubberyConfRe
 	return out, nil
 }
 
-func (c *rubberyConfServiceClient) Delete(ctx context.Context, in *RubberyConfRequest, opts ...grpc.CallOption) (*RubberyConfResponse, error) {
-	out := new(RubberyConfResponse)
+func (c *rubberyConfServiceClient) Delete(ctx context.Context, in *FeatureIdRequest, opts ...grpc.CallOption) (*FeatureResponse, error) {
+	out := new(FeatureResponse)
 	err := c.cc.Invoke(ctx, "/grpcapi.rubberyConfService/delete", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -283,22 +639,22 @@ func (c *rubberyConfServiceClient) Delete(ctx context.Context, in *RubberyConfRe
 
 // RubberyConfServiceServer is the server API for RubberyConfService service.
 type RubberyConfServiceServer interface {
-	Get(context.Context, *RubberyConfRequest) (*RubberyConfResponse, error)
-	Create(context.Context, *RubberyConfRequest) (*RubberyConfResponse, error)
-	Delete(context.Context, *RubberyConfRequest) (*RubberyConfResponse, error)
+	Get(context.Context, *FeatureIdRequest) (*FeatureFullResponse, error)
+	Create(context.Context, *FeatureCreationRequest) (*FeatureResponse, error)
+	Delete(context.Context, *FeatureIdRequest) (*FeatureResponse, error)
 }
 
 // UnimplementedRubberyConfServiceServer can be embedded to have forward compatible implementations.
 type UnimplementedRubberyConfServiceServer struct {
 }
 
-func (*UnimplementedRubberyConfServiceServer) Get(context.Context, *RubberyConfRequest) (*RubberyConfResponse, error) {
+func (*UnimplementedRubberyConfServiceServer) Get(context.Context, *FeatureIdRequest) (*FeatureFullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (*UnimplementedRubberyConfServiceServer) Create(context.Context, *RubberyConfRequest) (*RubberyConfResponse, error) {
+func (*UnimplementedRubberyConfServiceServer) Create(context.Context, *FeatureCreationRequest) (*FeatureResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (*UnimplementedRubberyConfServiceServer) Delete(context.Context, *RubberyConfRequest) (*RubberyConfResponse, error) {
+func (*UnimplementedRubberyConfServiceServer) Delete(context.Context, *FeatureIdRequest) (*FeatureResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
@@ -307,7 +663,7 @@ func RegisterRubberyConfServiceServer(s *grpc.Server, srv RubberyConfServiceServ
 }
 
 func _RubberyConfService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RubberyConfRequest)
+	in := new(FeatureIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -319,13 +675,13 @@ func _RubberyConfService_Get_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/grpcapi.rubberyConfService/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RubberyConfServiceServer).Get(ctx, req.(*RubberyConfRequest))
+		return srv.(RubberyConfServiceServer).Get(ctx, req.(*FeatureIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _RubberyConfService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RubberyConfRequest)
+	in := new(FeatureCreationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -337,13 +693,13 @@ func _RubberyConfService_Create_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/grpcapi.rubberyConfService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RubberyConfServiceServer).Create(ctx, req.(*RubberyConfRequest))
+		return srv.(RubberyConfServiceServer).Create(ctx, req.(*FeatureCreationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _RubberyConfService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RubberyConfRequest)
+	in := new(FeatureIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -355,7 +711,7 @@ func _RubberyConfService_Delete_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/grpcapi.rubberyConfService/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RubberyConfServiceServer).Delete(ctx, req.(*RubberyConfRequest))
+		return srv.(RubberyConfServiceServer).Delete(ctx, req.(*FeatureIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
