@@ -1,0 +1,37 @@
+# copy this file with your own configuration
+api: #rubberyconf server
+  port: 8080
+  cache: "None" #options: InMemory, Redis or None
+  source: "InMemory" #options: Mongodb, InMemory, Gogs or Github
+  logs: 
+    - Console
+    - Elastic
+  default_ttl: "10s" # ttl stored a configuration in cache 
+  options:
+    loglevel: "debug" #options: debug,info,error,warning 
+
+database: 
+  collections:
+    metrics: "metrics"
+    sessionids: "usersessions"
+    features: "features"
+  databasename: "rubberyconfdb"
+  url: "mongodb://localhost:27017/?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
+
+redis:
+  user: ""
+  pass: ""
+  url: "127.0.0.1:6379"
+
+
+gitserver:
+  user: ""
+  pass: ""
+  url: "http://localhost:3000/acme/configuration"
+  apitoken: ""
+
+elastic:
+  logs:
+    index: "rbtraces"
+  url: "http://localhost:9200"
+

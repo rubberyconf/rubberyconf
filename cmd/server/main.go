@@ -15,9 +15,15 @@ import (
 )
 
 func loadConfiguration(path string) *config.Config {
-	conf := config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
+
+	environment := os.Getenv("ENV")
+	if environment == "" {
+		environment = "local"
+	}
+
+	conf := config.NewConfiguration(filepath.Join(path, fmt.Sprintf("../../config/%s.yml", environment)))
 	b, _ := json.MarshalIndent(conf, "", "   ")
-	logs.GetLogs().WriteMessage("debug", fmt.Sprintf("Configuration loaded:\n%s\n----", string(b)), nil)
+	logs.GetLogs().WriteMessage("debug", fmt.Sprintf("Configuration loaded:\n%s\nEnvironment: %s ", string(b), environment), nil)
 	return conf
 }
 
@@ -32,7 +38,7 @@ func main() {
 	router := api.NewRouter()
 	datasource.SelectSource()
 
-	logs.GetLogs().WriteMessage("info", fmt.Sprintf("Api started at port: %s", conf.Api.Port), nil)
+	logs.GetLogs().WriteMessage("info", fmt.Sprintf("rubberyconf api started at port: %s", conf.Api.Port), nil)
 
 	log.Fatal(http.ListenAndServe(":"+conf.Api.Port, router))
 

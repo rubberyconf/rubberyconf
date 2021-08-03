@@ -1,0 +1,84 @@
+swagger: "2.0"
+info:
+  title: rubberyconf API
+  description: rubbery conf API definition.
+  version: 0.0.1
+host: rubberyconf
+basePath: /
+schemes:
+  - http
+paths:
+  /conf/{featureId}:
+    get:
+      summary: Returns featureId's value
+      description: Every configuration has detailed structure with several fields nested. The method returns only the value.
+      parameters:
+        - in: path
+          name: featureId
+          required: true
+          type: string
+      produces:
+        - application/json
+        - application/text
+      responses:
+        200:
+          description: OK
+        204:
+          description: configuration not found
+        500:
+          description: something went wrong
+    post:
+      summary: Create a new configuration indexed with name featureId
+      description: Store a new configuration in rubberyconf.
+      parameters:
+        - in: path
+          name: featureId
+          required: true
+          type: string
+        - in: body
+          name: configuration
+          description: configuration description
+          required: true
+          schema:
+            $ref: '#/definitions/featureConfiguration'
+      produces:
+        - application/text
+      responses:
+        200: 
+          description: OK
+        500:
+          description: something went wrong
+    delete:
+      summary: Delete configuration
+      description: Delete configuratio with key featureId
+      parameters:
+        - in: path
+          name: featureId
+          required: true
+          type: string
+      produces:
+        - application/text
+      responses:
+        200:
+          description: OK
+        500:
+          description: something went wrong
+
+definitions:
+  featureConfiguration:
+    type: object
+    properties:
+      name:
+        type: string
+      default:
+        type: object
+        properties:
+          value: 
+            type: object
+            properties:
+              data:
+                type: string
+              type:
+                type: string
+              
+          
