@@ -1,4 +1,7 @@
 
+version= v0.0.1
+time=$(date)
+
 # Basic go commands
 GOCMD=go
 GOBUILD=$(GOCMD) build
@@ -22,7 +25,7 @@ coverage:
 testcoverage: test coverage
 
 build:
-	$(GOBUILD) -o ./bin/$(BINARY_NAME) -v cmd/server/main.go
+	$(GOBUILD) -ldflags="-X 'main.BuildTime=$(time)' -X 'main.BuildVersion=$(version)'"  -o ./bin/$(BINARY_NAME) -v cmd/server/main.go
 
 clean: 
 	$(GOCLEAN)
