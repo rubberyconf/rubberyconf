@@ -5,7 +5,7 @@ Feature: Create, retrieve and delete a conf
     I need to be able to request a new configuration
 
     Scenario: User follow all steps
-        When New post request hits the api endpoint "http://localhost:8080" with name <feature> and content <info>
+        When New feature with name <feature> and content <info>
         Then A new conf must be stored in both cache and datasource
         Then Api send http request 200
         When New get request hits the api with name <feature>

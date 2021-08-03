@@ -2,6 +2,7 @@ package datasource
 
 import (
 	//"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
+	"github.com/rubberyconf/rubberyconf/internal/logs"
 )
 
 type DataSourceGogs struct {
@@ -39,10 +41,11 @@ func (source *DataSourceGogs) GetFeature(feat *Feature) (bool, error) {
 
 	req, err := http.NewRequest("GET", finalURL, nil)
 	if err != nil {
-		log.Panicf("http error object %s", finalURL)
+		logs.GetLogs().WriteMessage("error", fmt.Sprintf("imossible reach this host: %s", finalURL), err)
 		feat.Value = nil
 		return false, err
 	}
+
 	//req.Header.Add("Accept", "application/vnd.github.v3.raw")
 	//req.Header.Add("authorization", "token 929f19719c9c9aac8c37c3a3766ebfce211cf5a9")
 	resp, err := client.Do(req)
@@ -51,6 +54,11 @@ func (source *DataSourceGogs) GetFeature(feat *Feature) (bool, error) {
 		feat.Value = nil
 		return false, err
 	}
+
+	if resp.StatusCode != 200 {
+		return false, nil
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Panicln("error processing answer")

@@ -19,7 +19,7 @@ type FeatureDefinition struct {
 	Default struct {
 		Value struct {
 			Data interface{} `yaml:"data"`
-			Type interface{} `yaml:"type"`
+			Type string      `yaml:"type"`
 		} `yaml:"value"`
 		TTL string `yaml:"ttl"`
 	} `yaml:"default"`
@@ -53,11 +53,8 @@ type FeatureDefinition struct {
 					Score []string `yaml:"score"`
 				} `yaml:"experimentation"`
 			} `yaml:"rules"`
-			Value struct {
-				Data interface{} `yaml:"data"`
-				Type string      `yaml:"type"`
-			} `yaml:"value"`
-			TTL     string `yaml:"ttl"`
+			Value   interface{} `yaml:"value"`
+			TTL     string      `yaml:"ttl"`
 			Rollout struct {
 				Strategy       string `yaml:"strategy"`
 				EnabledForOnly string `yaml:"enabledForOnly"`

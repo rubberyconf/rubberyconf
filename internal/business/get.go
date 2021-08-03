@@ -1,23 +1,16 @@
-package handlers
+package business
 
 import (
-	"fmt"
-	"net/http"
 	"time"
-
-	"github.com/gorilla/mux"
 
 	"github.com/rubberyconf/rubberyconf/internal/metrics"
 )
 
-func ConfigurationGET(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
+func (bb Business) GetFeature(vars map[string]string) (int, interface{}, string) {
 	conf, cacheValue, source, featureSelected, result := preRequisites(vars)
 
 	if !result {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		return NotResult, nil, ""
 	}
 
 	updateCache := false
@@ -26,16 +19,10 @@ func ConfigurationGET(w http.ResponseWriter, r *http.Request) {
 		found, err := source.GetFeature(&featureSelected)
 
 		if err == nil && !found {
-			w.Header().Set("Content-Type", "application/text; charset=UTF-8")
-			w.WriteHeader(http.StatusNoContent)
-			return
-
+			return NoContent, nil, ""
 		}
 		if err != nil {
-			w.Header().Set("Content-Type", "application/text; charset=UTF-8")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-
+			return Unknown, nil, ""
 		}
 		updateCache = true
 	} else {
@@ -52,13 +39,12 @@ func ConfigurationGET(w http.ResponseWriter, r *http.Request) {
 	}
 
 	finalresult, err := featureSelected.Value.GetFinalValue()
+	finaltype := featureSelected.Value.Default.Value.Type
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		return Unknown, nil, ""
 	} else {
-		w.Header().Set("Content-Type", "application/text; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("%v", finalresult)))
+		metrics.GetMetrics().Update(featureSelected.Key)
+		return Success, finalresult, finaltype
 	}
 
-	metrics.GetMetrics().Update(featureSelected.Key)
 }

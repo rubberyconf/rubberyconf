@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package grpcapi;
+option go_package = "/grpcapipb";
+
+message rubberyConfRequest {
+    string name = 1;
+}
+
+message rubberyConfResponse {
+    string greeting = 1;
+}
+
+service rubberyConfService {
+    rpc get(rubberyConfRequest) returns (rubberyConfResponse) {};
+    rpc create(rubberyConfRequest) returns (rubberyConfResponse) {};
+    rpc delete(rubberyConfRequest) returns (rubberyConfResponse) {};
+}

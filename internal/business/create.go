@@ -1,28 +1,20 @@
-package handlers
+package business
 
 import (
-	"io"
-	"net/http"
 	"time"
-
-	"github.com/gorilla/mux"
 
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 	"github.com/rubberyconf/rubberyconf/internal/metrics"
 )
 
-func ConfigurationPOST(w http.ResponseWriter, r *http.Request) {
+func (bb Business) CreateFeature(vars map[string]string, b []byte) (int, error) {
 
-	vars := mux.Vars(r)
 	conf, cacheValue, source, featureSelected, result := preRequisites(vars)
+
 	if !result {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		return NotResult, nil
 	}
-	b, err := io.ReadAll(r.Body)
-	if err != nil {
-		return
-	}
+
 	ruberConf := feature.FeatureDefinition{}
 	ruberConf.LoadFromJsonBinary(b)
 
@@ -35,19 +27,14 @@ func ConfigurationPOST(w http.ResponseWriter, r *http.Request) {
 	u, _ := time.ParseDuration(timeInText)
 	res, _ := cacheValue.SetValue(featureSelected.Key, featureSelected.Value, time.Duration(u.Seconds()))
 	if !res {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return Unknown, nil
 	}
 
 	res = source.CreateFeature(featureSelected)
 	if !res {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return Unknown, nil
 	}
-
-	w.Header().Set("Content-Type", "application/text; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
 	metrics.GetMetrics().Update(featureSelected.Key)
+	return Success, nil
 
 }

@@ -1,10 +1,10 @@
-package api
+package httpapi
 
 import (
 	"net/http"
 
-	"github.com/rubberyconf/rubberyconf/api/handlers"
-	handlersConf "github.com/rubberyconf/rubberyconf/api/handlers/conf"
+	"github.com/rubberyconf/rubberyconf/httpapi/handlers"
+	handlersConf "github.com/rubberyconf/rubberyconf/httpapi/handlers/conf"
 )
 
 type Route struct {

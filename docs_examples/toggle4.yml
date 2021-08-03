@@ -20,8 +20,6 @@ configurations:
 
     rollout: allAtOnce
     ttl: 120s
-    value: 
-      data: "{value:1}"
-      type: json
+    value: "{value:1}"
 
   
