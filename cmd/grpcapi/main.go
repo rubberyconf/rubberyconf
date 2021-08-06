@@ -2,51 +2,79 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"log"
 	"net"
 
-	"github.com/rubberyconf/rubberyconf/internal/business"
-
 	"github.com/rubberyconf/rubberyconf/grpcapi/grpcapipb"
+	"github.com/rubberyconf/rubberyconf/internal/business"
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 	"google.golang.org/grpc"
 )
 
 type server struct {
 }
 
-func (*server) get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
+func (*server) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
 	var logic business.Business
 	name := request.FeatureName
 
 	vars := map[string]string{"feature": name}
-	result, content, typeContent := logic.GetFeature(vars)
+	result, content, _ := logic.GetFeature(vars)
 
+	bytes, err := json.Marshal(content)
+	if err != nil {
+		panic(err)
+	}
+
+	serialized := string(bytes)
 	response := &grpcapipb.FeatureFullResponse{
-		Status: result,
-		Value:  content,
+		Status: grpcapipb.StatusType(result),
+		Value:  serialized,
 	}
 	return response, nil
 }
-func (*server) create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureResponse, error) {
+
+func mapper(in *grpcapipb.FeatureCreationRequestDefaultCls) feature.FeatureDefinition {
+
+	var result = feature.FeatureDefinition{}
+	result.Default.Value.Data = in.Value.Data // to be reviewed
+	result.Default.Value.Type = in.Value.Type
+	//TODO: complete other fields
+
+	return result
+
+}
+
+func (*server) Create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureResponse, error) {
 	var logic business.Business
 	name := request.Name
 
 	vars := map[string]string{"feature": name}
-	result, content, typeContent := logic.CreateFeature(vars)
+
+	ruberConf := mapper(request.Default)
+
+	result, _ := logic.CreateFeature(vars, ruberConf)
+
 	response := &grpcapipb.FeatureResponse{
-		Status: result,
+		Status: grpcapipb.StatusType(result),
 	}
 	return response, nil
 }
-func (*server) delete(ctx context.Context, request *grpcapipb.RubberyConfRequest) (*grpcapipb.RubberyConfResponse, error) {
-	/*name := request.Name
-	response := &hellopb.HelloResponse{
-		Greeting: "Hello " + name,
+func (*server) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureResponse, error) {
+	var logic business.Business
+	name := request.FeatureName
+
+	vars := map[string]string{"feature": name}
+
+	result, _ := logic.DeleteFeature(vars)
+
+	response := &grpcapipb.FeatureResponse{
+		Status: grpcapipb.StatusType(result),
 	}
-	return response, nil*/
-	return nil, nil
+	return response, nil
 }
 
 func main() {
@@ -58,7 +86,6 @@ func main() {
 	fmt.Printf("Server is listening on %v ...", address)
 
 	s := grpc.NewServer()
-	grpcapipb.RubberyConfServiceServer
 	grpcapipb.RegisterRubberyConfServiceServer(s, &server{})
 
 	s.Serve(lis)

@@ -4,10 +4,9 @@ import (
 	"time"
 
 	"github.com/rubberyconf/rubberyconf/internal/feature"
-	"github.com/rubberyconf/rubberyconf/internal/metrics"
 )
 
-func (bb Business) CreateFeature(vars map[string]string, b []byte) (int, error) {
+func (bb Business) CreateFeature(vars map[string]string, ruberConf feature.FeatureDefinition) (int, error) {
 
 	conf, cacheValue, source, featureSelected, result := preRequisites(vars)
 
@@ -15,8 +14,8 @@ func (bb Business) CreateFeature(vars map[string]string, b []byte) (int, error) 
 		return NotResult, nil
 	}
 
-	ruberConf := feature.FeatureDefinition{}
-	ruberConf.LoadFromJsonBinary(b)
+	//ruberConf := feature.FeatureDefinition{}
+	//ruberConf.LoadFromJsonBinary(b)
 
 	featureSelected.Value = &ruberConf
 
@@ -34,7 +33,7 @@ func (bb Business) CreateFeature(vars map[string]string, b []byte) (int, error) 
 	if !res {
 		return Unknown, nil
 	}
-	metrics.GetMetrics().Update(featureSelected.Key)
+	//go metrics.GetMetrics().Update(featureSelected.Key)
 	return Success, nil
 
 }

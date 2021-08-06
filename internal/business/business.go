@@ -9,6 +9,12 @@ import (
 type Business struct {
 }
 
+/*type iBusiness interface {
+	CreateFeature(vars map[string]string, b []byte) (int, error)
+	DeleteFeature(vars map[string]string) (int, error)
+	GetFeature(vars map[string]string) (int, interface{}, string)
+}*/
+
 const (
 	NotResult = iota
 	NoContent = iota

@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/rubberyconf/rubberyconf/internal/business"
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
 func ConfigurationPOST(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +20,10 @@ func ConfigurationPOST(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	result, _ := logic.CreateFeature(vars, b)
+	ruberConf := feature.FeatureDefinition{}
+	ruberConf.LoadFromJsonBinary(b)
+
+	result, _ := logic.CreateFeature(vars, ruberConf)
 
 	processHTTPAnswer(result, w)
 

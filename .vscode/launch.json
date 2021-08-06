@@ -9,7 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": "${workspaceFolder}/cmd/server/httpapi.go",
+            "program": "${workspaceFolder}/cmd/httpapi/main.go",
             "args":[
                 "serve",
                 "-test.run",

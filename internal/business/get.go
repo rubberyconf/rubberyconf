@@ -43,7 +43,7 @@ func (bb Business) GetFeature(vars map[string]string) (int, interface{}, string)
 	if err != nil {
 		return Unknown, nil, ""
 	} else {
-		metrics.GetMetrics().Update(featureSelected.Key)
+		go metrics.GetMetrics().Update(featureSelected.Key)
 		return Success, finalresult, finaltype
 	}
 
