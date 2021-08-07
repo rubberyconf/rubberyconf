@@ -18,7 +18,6 @@ configurations:
       
 
     rollout: allAtOnce
-    ttl: 120s
     value: true
    
   - config: 
@@ -50,7 +49,6 @@ configurations:
         - testers
         
     rollout: allAtOnce
-    ttl: 120s
     value: true
 
   - config: 
@@ -68,5 +66,4 @@ configurations:
           - 0.75
         
     rollout: allAtOnce
-    ttl: 120s
     value: true

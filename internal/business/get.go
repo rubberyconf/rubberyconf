@@ -38,7 +38,7 @@ func (bb Business) GetFeature(vars map[string]string) (int, interface{}, string)
 		cacheValue.SetValue(featureSelected.Key, featureSelected.Value, time.Duration(u.Seconds()))
 	}
 
-	finalresult, err := featureSelected.Value.GetFinalValue()
+	finalresult, err := featureSelected.Value.GetFinalValue(vars)
 	finaltype := featureSelected.Value.Default.Value.Type
 	if err != nil {
 		return Unknown, nil, ""

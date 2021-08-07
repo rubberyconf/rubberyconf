@@ -12,12 +12,11 @@ configurations:
   - config: 
     id: 1
     rules:
-      environment:
+      - environment:
         - production
         - staging
 
     rollout: allAtOnce
-    ttl: 120s
     value: "{value:1}"
 
   - config:
@@ -40,5 +39,4 @@ configurations:
       strategy: partial
       enabledForOnly: 0.10
       selector: sessionID
-    ttl: 180s
     value: "{value:2}"
