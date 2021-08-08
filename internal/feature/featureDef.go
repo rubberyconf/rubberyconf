@@ -139,6 +139,13 @@ func checkRules(r FeatureRule, vars map[string]string) (int, *list.List) {
 			total += 1
 			matches.PushBack("querystring")
 		}
+	} else if len(r.Version) > 0 && len(vars["version"]) > 0 {
+		sentByclient := vars["version"]
+		ok := versionCheck(r.Version, sentByclient)
+		if ok {
+			total += 1
+			matches.PushBack("querystring")
+		}
 	}
 
 	return total, matches

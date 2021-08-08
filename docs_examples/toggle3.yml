@@ -11,17 +11,6 @@ meta:
 configurations:
   - config: 
     id: 1
-    rules:
-      environment:
-        - production
-        - staging
-      
-
-    rollout: allAtOnce
-    value: true
-   
-  - config: 
-    id: 2
     rulesBehaviour: "AND"
     rules:
       paltform:
@@ -52,7 +41,7 @@ configurations:
     value: true
 
   - config: 
-    id: 3
+    id: 2
     rulesBehaviour: "XOR"
     rules:
       cities:

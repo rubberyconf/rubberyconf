@@ -30,28 +30,7 @@ func TestDataSourceMongoDB_Creates(t *testing.T) {
 		path, _ := os.Getwd()
 		config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
 	}
-	/*
-		ctx := context.Background()
-		req := testcontainers.ContainerRequest{
-			Image:        "mongo:latest",
-			ExposedPorts: []string{"27017/tcp"},
-			WaitingFor:   wait.ForListeningPort(nat.Port("27017/tcp")),
-		}
-		mongoC, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-			ContainerRequest: req,
-			Started:          true,
-		})
-		if err != nil {
-			t.Error(err)
-		}
-		defer mongoC.Terminate(ctx)
 
-		endpoint, err := mongoC.Endpoint(ctx, "")
-		if err != nil {
-			t.Error(err)
-		}
-		conf.Database.Url = endpoint
-	*/
 	datasource := NewDataSourceMongoDB()
 
 	for _, tt := range tests {
