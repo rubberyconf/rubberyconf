@@ -8,7 +8,7 @@ import (
 )
 
 type BasicRuleMethods interface {
-	CheckRule(f rules.FeatureRule, vars map[string]string, matches *list.List) (bool, bool)
+	CheckRule(f rules.FeatureRule, vars map[string]string, matches *list.List, total *int) (bool, bool)
 }
 
 type RulerMaster struct {
@@ -47,12 +47,7 @@ func (me RulerMaster) CheckRules(f rules.FeatureRule, vars map[string]string) (i
 	for e := me.rules.Front(); e != nil; e = e.Next() {
 		// do something with e.Value
 		aux := e.Value.(BasicRuleMethods)
-		res, ignore := aux.CheckRule(f, vars, matches)
-		if !ignore {
-			if res {
-				total++
-			}
-		}
+		aux.CheckRule(f, vars, matches, &total)
 	}
 	return total, matches
 

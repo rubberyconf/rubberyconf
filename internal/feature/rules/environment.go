@@ -10,12 +10,13 @@ import (
 type RuleEnvironment struct {
 }
 
-func (me *RuleEnvironment) CheckRule(f FeatureRule, vars map[string]string, matches *list.List) (bool, bool) {
+func (me *RuleEnvironment) CheckRule(f FeatureRule, vars map[string]string, matches *list.List, total *int) (bool, bool) {
 
 	if len(f.Environment) > 0 {
 		ok := me.evaluateEnv(f.Environment)
 		if ok {
 			matches.PushBack("environment")
+			*total++
 		}
 		return ok, false
 	}

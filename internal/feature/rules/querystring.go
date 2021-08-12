@@ -10,12 +10,13 @@ type QueryParam struct {
 type RuleQueryString struct {
 }
 
-func (me *RuleQueryString) CheckRule(r FeatureRule, vars map[string]string, matches *list.List) (bool, bool) {
+func (me *RuleQueryString) CheckRule(r FeatureRule, vars map[string]string, matches *list.List, total *int) (bool, bool) {
 
 	if r.QueryString.Key != "" {
 		ok := me.evaluate(r.QueryString, vars)
 		if ok {
 			matches.PushBack("querystring")
+			*total++
 		}
 		return ok, false
 	}

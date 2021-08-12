@@ -5,12 +5,13 @@ import "container/list"
 type RuleVersion struct {
 }
 
-func (me *RuleVersion) CheckRule(r FeatureRule, vars map[string]string, matches *list.List) (bool, bool) {
+func (me *RuleVersion) CheckRule(r FeatureRule, vars map[string]string, matches *list.List, total *int) (bool, bool) {
 	if len(r.Version) > 0 && len(vars["version"]) > 0 {
 		sentByclient := vars["version"]
 		ok := me.versionCheck(r.Version, sentByclient)
 		if ok {
 			matches.PushBack("querystring")
+			*total++
 		}
 		return ok, false
 	}

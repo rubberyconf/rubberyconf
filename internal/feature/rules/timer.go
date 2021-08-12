@@ -11,11 +11,12 @@ type FeatureTimer struct {
 type RuleTimer struct {
 }
 
-func (me *RuleTimer) CheckRule(r FeatureRule, vars map[string]string, matches *list.List) (bool, bool) {
+func (me *RuleTimer) CheckRule(r FeatureRule, vars map[string]string, matches *list.List, total *int) (bool, bool) {
 	if len(r.FeatureTm.TriggerTime) > 0 {
 		ok := me.evaluate(r.FeatureTm)
 		if ok {
 			matches.PushBack("timer")
+			*total++
 		}
 		return ok, false
 	}
