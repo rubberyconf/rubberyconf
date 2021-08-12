@@ -53,6 +53,14 @@ configurations:
           highestScore: .5
         score:
           - 0.75
+    value: true
+    rollout: allAtOnce
+
+  - config:
+    id: 3
+    rules:
+      timer: 
+        triggerTime: "Jan 2, 2021 at 3:04pm (MST)"  
         
     rollout: allAtOnce
     value: true

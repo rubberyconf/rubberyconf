@@ -31,6 +31,7 @@ type FeatureRule struct {
 		} `yaml:"range"`
 		Score []string `yaml:"score"`
 	} `yaml:"experimentation"`
+	FeatureTm FeatureTimer `yaml:"timer"`
 }
 
 type FeatureDefinition struct {
@@ -146,6 +147,13 @@ func checkRules(r FeatureRule, vars map[string]string) (int, *list.List) {
 			total += 1
 			matches.PushBack("querystring")
 		}
+	} else if len(r.FeatureTm.TriggerTime) > 0 {
+		ok := featureTimerCheck(r.FeatureTm)
+		if ok {
+			total += 1
+			matches.PushBack("timer")
+		}
+
 	}
 
 	return total, matches
