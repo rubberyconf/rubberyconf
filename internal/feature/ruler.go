@@ -38,6 +38,11 @@ func (me RulerMaster) RegisterRules() {
 	me.rules.PushBack(new(rules.RuleVersion))
 	me.rules.PushBack(new(rules.RuleQueryString))
 	me.rules.PushBack(new(rules.RuleHeader))
+	me.rules.PushBack(new(rules.RulePlatform))
+	me.rules.PushBack(new(rules.RuleCity))
+	me.rules.PushBack(new(rules.RuleCountry))
+	me.rules.PushBack(new(rules.RuleUserId))
+	me.rules.PushBack(new(rules.RuleUserGroup))
 
 }
 
