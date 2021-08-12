@@ -34,9 +34,10 @@ func NewRuleMaster() *RulerMaster {
 func (me RulerMaster) RegisterRules() {
 
 	me.rules.PushBack(new(rules.RuleEnvironment))
-	me.rules.PushBack(new(rules.RuleQueryString))
 	me.rules.PushBack(new(rules.RuleTimer))
 	me.rules.PushBack(new(rules.RuleVersion))
+	me.rules.PushBack(new(rules.RuleQueryString))
+	me.rules.PushBack(new(rules.RuleHeader))
 
 }
 

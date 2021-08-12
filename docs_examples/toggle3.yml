@@ -42,7 +42,7 @@ configurations:
 
   - config: 
     id: 2
-    rulesBehaviour: "XOR"
+    rulesBehaviour: "OR"
     rules:
       cities:
         - BCN

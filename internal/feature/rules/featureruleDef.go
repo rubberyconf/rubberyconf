@@ -1,12 +1,14 @@
 package rules
 
+type KeyValue struct {
+	Key   string   `yaml:"key"`
+	Value []string `yaml:"value"`
+}
+
 type FeatureRule struct {
-	Environment []string   `yaml:"environment"`
-	QueryString QueryParam `yaml:"querystring"`
-	Header      struct {
-		Key   string   `yaml:"key"`
-		Value []string `yaml:"value"`
-	} `yaml:"header"`
+	Environment     []string `yaml:"environment"`
+	QueryString     KeyValue `yaml:"querystring"`
+	Header          KeyValue `yaml:"header"`
 	Platform        []string `yaml:"platform"`
 	Version         []string `yaml:"version"`
 	Country         []string `yaml:"country"`
