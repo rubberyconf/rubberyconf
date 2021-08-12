@@ -1,12 +1,8 @@
-package feature
+package rules
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"testing"
-
-	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
 func TestTimer(t *testing.T) {
@@ -19,16 +15,17 @@ func TestTimer(t *testing.T) {
 		{FeatureTimer{"Sep 12, 2021 at 11:00pm (CEST)"}, false},
 	}
 
-	conf := config.GetConfiguration()
+	/*conf := config.GetConfiguration()
 	if conf == nil {
 		path, _ := os.Getwd()
-		conf = config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
-	}
+		conf = config.NewConfiguration(filepath.Join(path, "../../../config/local.yml"))
+	}*/
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("version: %s", tt.sent)
 		t.Run(testname, func(t *testing.T) {
-			ok := featureTimerCheck(tt.sent)
+			var rt RuleTimer
+			ok := rt.evaluate(tt.sent)
 			if ok != tt.expected {
 				t.Errorf("got %t, want %t", ok, tt.expected)
 			}

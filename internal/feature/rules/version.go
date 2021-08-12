@@ -1,6 +1,23 @@
-package feature
+package rules
 
-func VersionOrdinal(version string) string {
+import "container/list"
+
+type RuleVersion struct {
+}
+
+func (me *RuleVersion) CheckRule(r FeatureRule, vars map[string]string, matches *list.List) (bool, bool) {
+	if len(r.Version) > 0 && len(vars["version"]) > 0 {
+		sentByclient := vars["version"]
+		ok := me.versionCheck(r.Version, sentByclient)
+		if ok {
+			matches.PushBack("querystring")
+		}
+		return ok, false
+	}
+	return false, true
+}
+
+func (me *RuleVersion) versionOrdinal(version string) string {
 	// ISO/IEC 14651:2011
 	const maxByte = 1<<8 - 1
 	vo := make([]byte, 0, len(version)+8)
@@ -29,7 +46,7 @@ func VersionOrdinal(version string) string {
 	return string(vo)
 }
 
-func versionCheck(objective []string, sentBy string) bool {
+func (me *RuleVersion) versionCheck(objective []string, sentBy string) bool {
 
 	for _, obj := range objective {
 
@@ -38,14 +55,14 @@ func versionCheck(objective []string, sentBy string) bool {
 		if fist == ">" {
 			o := len(obj)
 			newObj := obj[1:o]
-			a, b := VersionOrdinal(newObj), VersionOrdinal(sentBy)
+			a, b := me.versionOrdinal(newObj), me.versionOrdinal(sentBy)
 			if b > a {
 				return true
 			} else {
 				return false
 			}
 		}
-		a, b := VersionOrdinal(obj), VersionOrdinal(sentBy)
+		a, b := me.versionOrdinal(obj), me.versionOrdinal(sentBy)
 		if a == b {
 			return true
 		}

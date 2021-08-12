@@ -6,33 +6,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/rubberyconf/rubberyconf/internal/feature/rules"
 	"github.com/rubberyconf/rubberyconf/internal/logs"
 	"gopkg.in/yaml.v2"
 )
-
-type FeatureRule struct {
-	Environment []string   `yaml:"environment"`
-	QueryString QueryParam `yaml:"querystring"`
-	Header      struct {
-		Key   string   `yaml:"key"`
-		Value []string `yaml:"value"`
-	} `yaml:"header"`
-	Platform        []string `yaml:"platform"`
-	Version         []string `yaml:"version"`
-	Country         []string `yaml:"country"`
-	City            []string `yaml:"city"`
-	UserId          []string `yaml:"userId"`
-	UserGroup       []string `yaml:"userGroup"`
-	Experimentation struct {
-		Id    string `yaml:"id"`
-		Range struct {
-			lowestScore  string `yaml:"lowestScore"`
-			highestScore string `yaml:"highestScore"`
-		} `yaml:"range"`
-		Score []string `yaml:"score"`
-	} `yaml:"experimentation"`
-	FeatureTm FeatureTimer `yaml:"timer"`
-}
 
 type FeatureDefinition struct {
 	Name string `yaml:"name"`
@@ -50,10 +27,10 @@ type FeatureDefinition struct {
 	} `yaml:"default"`
 
 	Configurations []struct {
-		ConfigId       string        `yaml:"id"`
-		RulesBehaviour string        `yaml:"rulesBehaviour"`
-		Rules          []FeatureRule `yaml:"rules"`
-		Value          interface{}   `yaml:"value"`
+		ConfigId       string              `yaml:"id"`
+		RulesBehaviour string              `yaml:"rulesBehaviour"`
+		Rules          []rules.FeatureRule `yaml:"rules"`
+		Value          interface{}         `yaml:"value"`
 		Rollout        struct {
 			Strategy       string `yaml:"strategy"`
 			EnabledForOnly string `yaml:"enabledForOnly"`
@@ -125,47 +102,15 @@ func (conf *FeatureDefinition) GetFinalValue(vars map[string]string) (interface{
 	return afterCast, nil
 }
 
-func checkRules(r FeatureRule, vars map[string]string) (int, *list.List) {
-	total := 0
-	matches := list.New()
-	if len(r.Environment) > 0 {
-		ok := ruleEnvironment(r.Environment)
-		if ok {
-			total += 1
-			matches.PushBack("environment")
-		}
-	} else if r.QueryString.Key != "" {
-		ok := queryString(r.QueryString, vars)
-		if ok {
-			total += 1
-			matches.PushBack("querystring")
-		}
-	} else if len(r.Version) > 0 && len(vars["version"]) > 0 {
-		sentByclient := vars["version"]
-		ok := versionCheck(r.Version, sentByclient)
-		if ok {
-			total += 1
-			matches.PushBack("querystring")
-		}
-	} else if len(r.FeatureTm.TriggerTime) > 0 {
-		ok := featureTimerCheck(r.FeatureTm)
-		if ok {
-			total += 1
-			matches.PushBack("timer")
-		}
-
-	}
-
-	return total, matches
-}
-
 func (conf *FeatureDefinition) SelectRule(vars map[string]string) (interface{}, bool, string, *list.List) {
+
+	ruleMast := NewRuleMaster()
 
 	for _, c := range conf.Configurations {
 		total := 0
 		totalMatches := list.New()
 		for _, r := range c.Rules {
-			matches, labelMatches := checkRules(r, vars)
+			matches, labelMatches := ruleMast.CheckRules(r, vars)
 			total += matches
 			totalMatches.PushBackList(labelMatches)
 		}

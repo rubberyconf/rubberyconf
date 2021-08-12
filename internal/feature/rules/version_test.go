@@ -1,4 +1,4 @@
-package feature
+package rules
 
 import (
 	"fmt"
@@ -20,7 +20,8 @@ func TestCheckVersions(t *testing.T) {
 	for _, tt := range tests {
 		testname := fmt.Sprintf("version: %s", tt.sent)
 		t.Run(testname, func(t *testing.T) {
-			ok := versionCheck(tt.obj, tt.sent)
+			var rv RuleVersion
+			ok := rv.versionCheck(tt.obj, tt.sent)
 			if ok != tt.expected {
 				t.Errorf("got %t, want %t", ok, tt.expected)
 			}
