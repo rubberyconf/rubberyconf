@@ -5,6 +5,7 @@ import (
 
 	"github.com/rubberyconf/rubberyconf/httpapi/handlers"
 	handlersConf "github.com/rubberyconf/rubberyconf/httpapi/handlers/conf"
+	handlersFeature "github.com/rubberyconf/rubberyconf/httpapi/handlers/feature"
 )
 
 type Route struct {
@@ -46,5 +47,17 @@ var routes = Routes{
 		"DELETE",
 		"/conf/{feature}",
 		handlersConf.ConfigurationDELETE,
+	},
+	Route{
+		"feature",
+		"GET",
+		"/feature/{feature}",
+		handlersFeature.FeatureGET,
+	},
+	Route{
+		"feature",
+		"GET",
+		"/feature/{feature}/{branch}",
+		handlersFeature.FeatureGET,
 	},
 }

@@ -3,14 +3,41 @@ package business
 import (
 	"time"
 
+	"github.com/rubberyconf/rubberyconf/internal/datasource"
+	"github.com/rubberyconf/rubberyconf/internal/feature"
 	"github.com/rubberyconf/rubberyconf/internal/metrics"
 )
 
-func (bb Business) GetFeature(vars map[string]string) (int, interface{}, string) {
+func (bb Business) GetFeatureOnlyValue(vars map[string]string) (int, interface{}, string) {
+
+	status, featureSelected := bb.getFeature(vars)
+	if status == Success {
+		finalresult, err := featureSelected.Value.GetFinalValue(vars)
+		finaltype := featureSelected.Value.Default.Value.Type
+		if err != nil {
+			return Unknown, nil, ""
+		} else {
+			return Success, finalresult, finaltype
+		}
+	} else {
+		return status, nil, ""
+	}
+}
+func (bb Business) GetFeatureFull(vars map[string]string) (int, *feature.FeatureDefinition) {
+
+	status, featureSelected := bb.getFeature(vars)
+	if status == Success {
+		return status, featureSelected.Value
+	} else {
+		return status, nil
+	}
+}
+
+func (bb Business) getFeature(vars map[string]string) (int, datasource.Feature) {
 	conf, cacheValue, source, featureSelected, result := preRequisites(vars)
 
 	if !result {
-		return NotResult, nil, ""
+		return NotResult, featureSelected
 	}
 
 	updateCache := false
@@ -19,10 +46,10 @@ func (bb Business) GetFeature(vars map[string]string) (int, interface{}, string)
 		found, err := source.GetFeature(&featureSelected)
 
 		if err == nil && !found {
-			return NoContent, nil, ""
+			return NoContent, featureSelected
 		}
 		if err != nil {
-			return Unknown, nil, ""
+			return Unknown, featureSelected
 		}
 		updateCache = true
 	} else {
@@ -38,13 +65,16 @@ func (bb Business) GetFeature(vars map[string]string) (int, interface{}, string)
 		cacheValue.SetValue(featureSelected.Key, featureSelected.Value, time.Duration(u.Seconds()))
 	}
 
-	finalresult, err := featureSelected.Value.GetFinalValue(vars)
+	go metrics.GetMetrics().Update(featureSelected.Key)
+
+	return Success, featureSelected
+
+	/*finalresult, err := featureSelected.Value.GetFinalValue(vars)
 	finaltype := featureSelected.Value.Default.Value.Type
 	if err != nil {
 		return Unknown, nil, ""
 	} else {
-		go metrics.GetMetrics().Update(featureSelected.Key)
 		return Success, finalresult, finaltype
-	}
+	}*/
 
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"log"
@@ -14,25 +13,29 @@ import (
 	"google.golang.org/grpc"
 )
 
-type server struct {
+type ConfServer struct {
+}
+type FeatureServer struct {
 }
 
-func (*server) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
+func (*ConfServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
 	var logic business.Business
 	name := request.FeatureName
 
 	vars := map[string]string{"feature": name}
-	result, content, _ := logic.GetFeature(vars)
+	result, content := logic.GetFeatureFull(vars)
 
-	bytes, err := json.Marshal(content)
+	/*bytes, err := json.Marshal(content)
 	if err != nil {
 		panic(err)
-	}
+	}*/
 
-	serialized := string(bytes)
+	//serialized := string(bytes)
+	// TODO: mapping fields one by one
 	response := &grpcapipb.FeatureFullResponse{
-		Status: grpcapipb.StatusType(result),
-		Value:  serialized,
+		Status:     grpcapipb.StatusType(result),
+		Defaultttl: content.Default.TTL,
+		//DefaultValue: content.Default.Value.Data
 	}
 	return response, nil
 }
@@ -48,7 +51,7 @@ func mapper(in *grpcapipb.FeatureCreationRequestDefaultCls) feature.FeatureDefin
 
 }
 
-func (*server) Create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureResponse, error) {
+func (*ConfServer) Create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureResponse, error) {
 	var logic business.Business
 	name := request.Name
 
@@ -63,7 +66,7 @@ func (*server) Create(ctx context.Context, request *grpcapipb.FeatureCreationReq
 	}
 	return response, nil
 }
-func (*server) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureResponse, error) {
+func (*ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureResponse, error) {
 	var logic business.Business
 	name := request.FeatureName
 
@@ -77,6 +80,11 @@ func (*server) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) 
 	return response, nil
 }
 
+func (*FeatureServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureShortResponse, error) {
+	// TODO: implement it
+	return nil, nil
+}
+
 func main() {
 	address := "0.0.0.0:50051"
 	lis, err := net.Listen("tcp", address)
@@ -86,7 +94,8 @@ func main() {
 	fmt.Printf("Server is listening on %v ...", address)
 
 	s := grpc.NewServer()
-	grpcapipb.RegisterRubberyConfServiceServer(s, &server{})
+	grpcapipb.RegisterRubberyConfServiceServer(s, &ConfServer{})
+	grpcapipb.RegisterRubberyFeatureServiceServer(s, &FeatureServer{})
 
 	s.Serve(lis)
 }

@@ -1,4 +1,4 @@
-package handlers
+package tools
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/rubberyconf/rubberyconf/internal/business"
 )
 
-func processHTTPAnswer(result int, w http.ResponseWriter) {
+func ProcessHTTPAnswer(result int, w http.ResponseWriter) {
 
 	w.Header().Set("Content-Type", "application/text; charset=UTF-8") //by default
 	switch result {

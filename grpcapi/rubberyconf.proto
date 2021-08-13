@@ -36,14 +36,23 @@ message featureCreationRequest {
 message featureResponse {
     StatusType status = 1;
 }
-message featureFullResponse {
+message featureShortResponse {
     StatusType status = 1;
     string  value = 2; // serialization from string
 }
-
+//TODO: add all fields of featureDefinition model. 
+message featureFullResponse {
+    StatusType status = 1;
+    string  value = 2; // serialization from string
+    string defaultttl = 3;
+}
 
 service rubberyConfService {
     rpc Get(featureIdRequest) returns (featureFullResponse) {};
     rpc Create(featureCreationRequest) returns (featureResponse) {};
     rpc Delete(featureIdRequest) returns (featureResponse) {};
+}
+
+service rubberyFeatureService {
+    rpc Get(featureIdRequest) returns (featureShortResponse) {};
 }

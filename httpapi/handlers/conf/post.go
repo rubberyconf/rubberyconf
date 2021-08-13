@@ -1,4 +1,4 @@
-package handlers
+package conf
 
 import (
 	"io"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/rubberyconf/rubberyconf/httpapi/handlers/tools"
 	"github.com/rubberyconf/rubberyconf/internal/business"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
@@ -25,6 +26,6 @@ func ConfigurationPOST(w http.ResponseWriter, r *http.Request) {
 
 	result, _ := logic.CreateFeature(vars, ruberConf)
 
-	processHTTPAnswer(result, w)
+	tools.ProcessHTTPAnswer(result, w)
 
 }

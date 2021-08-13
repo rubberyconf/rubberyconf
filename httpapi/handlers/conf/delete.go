@@ -1,9 +1,10 @@
-package handlers
+package conf
 
 import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rubberyconf/rubberyconf/httpapi/handlers/tools"
 	"github.com/rubberyconf/rubberyconf/internal/business"
 )
 
@@ -15,6 +16,6 @@ func ConfigurationDELETE(w http.ResponseWriter, r *http.Request) {
 
 	result, _ := logic.DeleteFeature(vars)
 
-	processHTTPAnswer(result, w)
+	tools.ProcessHTTPAnswer(result, w)
 
 }
