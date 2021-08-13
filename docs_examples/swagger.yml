@@ -8,7 +8,7 @@ basePath: /
 schemes:
   - http
 paths:
-  /feature/{featureId}/{branch}:
+  /feature/{featureId}?branch=master:
     get:
       summary: Returns featureId's value only. Mainly to be called by clients. 
       description: Every configuration has detailed structure with several fields nested. The method returns only value after all business rules have been applied.
@@ -18,10 +18,10 @@ paths:
           required: true
           type: string
           description: feature id
-        - in: path
+        - in: query
           name: branch
           type: string
-          description: Only if we're using git service as datasource
+          description: Only if we're using git service as datasource, you can set from which branch you want to get it.
       produces:
         - application/json
         - application/text
@@ -33,7 +33,7 @@ paths:
         500:
           description: something went wrong
  
-  /conf/{featureId}/{branch}:
+  /conf/{featureId}?branch=main:
     get:
       summary: Returns featureId full information (all fields)
       description: Every configuration has detailed structure with several fields nested. The method returns full information. No rules applied.
@@ -43,10 +43,10 @@ paths:
           required: true
           type: string
           description: feature id
-        - in: path
+        - in: query
           name: branch
           type: string
-          description: Only if we're using git service as datasource
+          description: Only if we're using git service as datasource. Choose from what branch you want to get the content
 
       produces:
         - application/json

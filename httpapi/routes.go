@@ -27,12 +27,6 @@ var routes = Routes{
 	Route{
 		"configuration",
 		"GET",
-		"/conf/{feature}/{branch}",
-		handlersConf.ConfigurationGET,
-	},
-	Route{
-		"configuration",
-		"GET",
 		"/conf/{feature}",
 		handlersConf.ConfigurationGET,
 	},
@@ -52,12 +46,6 @@ var routes = Routes{
 		"feature",
 		"GET",
 		"/feature/{feature}",
-		handlersFeature.FeatureGET,
-	},
-	Route{
-		"feature",
-		"GET",
-		"/feature/{feature}/{branch}",
 		handlersFeature.FeatureGET,
 	},
 }

@@ -85,6 +85,6 @@ func (source *DataSourceGogs) EnableFeature(keys map[string]string) (Feature, bo
 	return gitEnableFeature(keys)
 }
 
-func (source *DataSourceGogs) reviewDependencies(conf *config.Config) {
-	reviewDependencies(conf)
+func (source *DataSourceGogs) reviewDependencies() {
+	reviewDependencies()
 }

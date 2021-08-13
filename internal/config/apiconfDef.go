@@ -26,10 +26,11 @@ type Config struct {
 		Url      string `yaml:"url" envconfig:"REDIS_URL"`
 	} `yaml:"redis"`
 	GitServer struct {
-		Username string `yaml:"user" envconfig:"GIT_USERNAME"`
-		Password string `yaml:"pass" envconfig:"GIT_PASSWORD"`
-		Url      string `yaml:"url" envconfig:"GIT_URL"`
-		ApiToken string `yaml:"apitoken" envconfig:"GIT_APITOKEN"`
+		Username      string `yaml:"user" envconfig:"GIT_USERNAME"`
+		Password      string `yaml:"pass" envconfig:"GIT_PASSWORD"`
+		Url           string `yaml:"url" envconfig:"GIT_URL"`
+		ApiToken      string `yaml:"apitoken" envconfig:"GIT_APITOKEN"`
+		BranchDefault string `yaml:"branchdefault" envconfig:"GIT_BRANCHDEFAULT"`
 	} `yaml:"gitserver"`
 	Elastic struct {
 		Url  string `yaml:"url" envconfig:"ELASTIC_URL"`

@@ -5,8 +5,6 @@ import (
 
 	"log"
 	"sync"
-
-	"github.com/rubberyconf/rubberyconf/internal/config"
 )
 
 // TODO: to be implemented
@@ -48,6 +46,6 @@ func (source *DataSourceGithub) CreateFeature(feature Feature) bool {
 func (source *DataSourceGithub) EnableFeature(keys map[string]string) (Feature, bool) {
 	return gitEnableFeature(keys)
 }
-func (source *DataSourceGithub) reviewDependencies(conf *config.Config) {
-	reviewDependencies(conf)
+func (source *DataSourceGithub) reviewDependencies() {
+	reviewDependencies()
 }

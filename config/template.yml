@@ -29,6 +29,7 @@ gitserver:
   pass: ""
   url: "http://localhost:3000/acme/configuration"
   apitoken: ""
+  branchdefault: "master"
 
 elastic:
   logs:

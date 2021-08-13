@@ -17,7 +17,7 @@ type IDataSource interface {
 	GetFeature(feature *Feature) (bool, error)
 	DeleteFeature(feature Feature) bool
 	CreateFeature(feature Feature) bool
-	reviewDependencies(conf *config.Config)
+	reviewDependencies()
 }
 
 const (
@@ -42,7 +42,7 @@ func SelectSource() IDataSource {
 	} else {
 		log.Fatal("no data source selected")
 	}
-	res.reviewDependencies(conf)
+	res.reviewDependencies()
 
 	return res
 }

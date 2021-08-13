@@ -3,7 +3,6 @@ package datasource
 import (
 	"sync"
 
-	"github.com/rubberyconf/rubberyconf/internal/config"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
@@ -54,5 +53,5 @@ func (source *DataSourceInMemory) EnableFeature(keys map[string]string) (Feature
 	return enableFeature(keys)
 }
 
-func (source *DataSourceInMemory) reviewDependencies(conf *config.Config) {
+func (source *DataSourceInMemory) reviewDependencies() {
 }
