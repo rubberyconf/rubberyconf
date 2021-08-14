@@ -18,29 +18,22 @@ type ConfServer struct {
 type FeatureServer struct {
 }
 
+//TODO: complete full mapping
 func (*ConfServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
 	var logic business.Business
 	name := request.FeatureName
 
 	vars := map[string]string{"feature": name}
-	result, content := logic.GetFeatureFull(vars)
+	result, content, err := logic.GetFeatureFull(vars)
 
-	/*bytes, err := json.Marshal(content)
-	if err != nil {
-		panic(err)
-	}*/
-
-	//serialized := string(bytes)
-	// TODO: mapping fields one by one
 	response := &grpcapipb.FeatureFullResponse{
 		Status:     grpcapipb.StatusType(result),
-		Defaultttl: content.Default.TTL,
-		//DefaultValue: content.Default.Value.Data
+		FeatureDef: mapperFromFeatureDef(content),
 	}
-	return response, nil
+	return response, err
 }
 
-func mapper(in *grpcapipb.FeatureCreationRequestDefaultCls) feature.FeatureDefinition {
+func mapperToFeatureDef(in *grpcapipb.FeatureCreationRequestDefaultCls) feature.FeatureDefinition {
 
 	var result = feature.FeatureDefinition{}
 	result.Default.Value.Data = in.Value.Data // to be reviewed
@@ -51,20 +44,46 @@ func mapper(in *grpcapipb.FeatureCreationRequestDefaultCls) feature.FeatureDefin
 
 }
 
+func mapperFromFeatureDef(f *feature.FeatureDefinition) *grpcapipb.FeatureFullResponseFeatureDefinition {
+	var result = new(grpcapipb.FeatureFullResponseFeatureDefinition)
+
+	//TODO: implement mapper
+	result.DefaultTtl = f.Default.TTL
+	// .....other fields...
+
+	return result
+}
+
 func (*ConfServer) Create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureResponse, error) {
 	var logic business.Business
 	name := request.Name
 
 	vars := map[string]string{"feature": name}
 
-	ruberConf := mapper(request.Default)
+	ruberConf := mapperToFeatureDef(request.DefaultValue)
 
-	result, _ := logic.CreateFeature(vars, ruberConf)
+	result, err := logic.CreateFeature(vars, ruberConf)
 
 	response := &grpcapipb.FeatureResponse{
 		Status: grpcapipb.StatusType(result),
 	}
-	return response, nil
+	return response, err
+}
+
+func (*ConfServer) Patch(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureResponse, error) {
+	var logic business.Business
+	name := request.Name
+
+	vars := map[string]string{"feature": name}
+
+	ruberConf := mapperToFeatureDef(request.DefaultValue)
+
+	result, err := logic.PatchFeature(vars, ruberConf)
+
+	response := &grpcapipb.FeatureResponse{
+		Status: grpcapipb.StatusType(result),
+	}
+	return response, err
 }
 func (*ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureResponse, error) {
 	var logic business.Business
@@ -72,17 +91,30 @@ func (*ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdReque
 
 	vars := map[string]string{"feature": name}
 
-	result, _ := logic.DeleteFeature(vars)
+	result, err := logic.DeleteFeature(vars)
 
 	response := &grpcapipb.FeatureResponse{
 		Status: grpcapipb.StatusType(result),
 	}
-	return response, nil
+	return response, err
 }
 
 func (*FeatureServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureShortResponse, error) {
-	// TODO: implement it
-	return nil, nil
+	var logic business.Business
+	name := request.FeatureName
+
+	vars := map[string]string{"feature": name}
+
+	result, value, typevalue, err := logic.GetFeatureOnlyValue(vars)
+
+	valueStr := fmt.Sprintf("%v", value)
+
+	response := &grpcapipb.FeatureShortResponse{
+		Status: grpcapipb.StatusType(result),
+		Value:  valueStr,
+		Type:   typevalue,
+	}
+	return response, err
 }
 
 func main() {

@@ -16,8 +16,11 @@ func FeatureGET(w http.ResponseWriter, r *http.Request) {
 	var logic business.Business
 
 	vars := mux.Vars(r)
-	result, content, typeContent := logic.GetFeatureOnlyValue(vars)
-
+	result, content, typeContent, err := logic.GetFeatureOnlyValue(vars)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	tools.ProcessHTTPAnswer(result, w)
 
 	if result == business.Success {

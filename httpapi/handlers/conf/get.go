@@ -15,7 +15,10 @@ func ConfigurationGET(w http.ResponseWriter, r *http.Request) {
 	var logic business.Business
 
 	vars := mux.Vars(r)
-	result, content := logic.GetFeatureFull(vars)
+	result, content, err := logic.GetFeatureFull(vars)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 
 	tools.ProcessHTTPAnswer(result, w)
 

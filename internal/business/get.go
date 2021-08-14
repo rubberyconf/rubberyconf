@@ -1,80 +1,72 @@
 package business
 
 import (
-	"time"
-
 	"github.com/rubberyconf/rubberyconf/internal/datasource"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 	"github.com/rubberyconf/rubberyconf/internal/metrics"
 )
 
-func (bb Business) GetFeatureOnlyValue(vars map[string]string) (int, interface{}, string) {
+func (bb Business) GetFeatureOnlyValue(vars map[string]string) (int, interface{}, string, error) {
 
-	status, featureSelected := bb.getFeature(vars)
+	status, featureSelected, err := bb.getFeature(vars)
 	if status == Success {
 		finalresult, err := featureSelected.Value.GetFinalValue(vars)
 		finaltype := featureSelected.Value.Default.Value.Type
 		if err != nil {
-			return Unknown, nil, ""
+			return Unknown, nil, "", err
 		} else {
-			return Success, finalresult, finaltype
+			return Success, finalresult, finaltype, err
 		}
 	} else {
-		return status, nil, ""
+		return status, nil, "", err
 	}
 }
-func (bb Business) GetFeatureFull(vars map[string]string) (int, *feature.FeatureDefinition) {
+func (bb Business) GetFeatureFull(vars map[string]string) (int, *feature.FeatureDefinition, error) {
 
-	status, featureSelected := bb.getFeature(vars)
+	status, featureSelected, err := bb.getFeature(vars)
 	if status == Success {
-		return status, featureSelected.Value
+		return status, featureSelected.Value, nil
 	} else {
-		return status, nil
+		return status, nil, err
 	}
 }
 
-func (bb Business) getFeature(vars map[string]string) (int, datasource.Feature) {
-	conf, cacheValue, source, featureSelected, result := preRequisites(vars)
+func (bb Business) getFeature(vars map[string]string) (int, datasource.Feature, error) {
+	_, cacheValue, source, featureSelected, result := preRequisites(vars)
 
 	if !result {
-		return NotResult, featureSelected
+		return NotResult, featureSelected, nil
 	}
 
-	updateCache := false
+	updateCacheFlag := false
 	val, found, _ := cacheValue.GetValue(featureSelected.Key)
 	if !found {
 		found, err := source.GetFeature(&featureSelected)
 
 		if err == nil && !found {
-			return NoContent, featureSelected
+			return NoContent, featureSelected, nil
 		}
 		if err != nil {
-			return Unknown, featureSelected
+			return Unknown, featureSelected, err
 		}
-		updateCache = true
+		updateCacheFlag = true
 	} else {
 		featureSelected.Value = val
 	}
 
-	if updateCache {
-		timeInText := conf.Api.DefaultTTL
+	if updateCacheFlag {
+		updateCache(featureSelected, cacheValue)
+		/*timeInText := conf.Api.DefaultTTL
 		if featureSelected.Value.Default.TTL != "" {
 			timeInText = featureSelected.Value.Default.TTL
 		}
 		u, _ := time.ParseDuration(timeInText)
 		cacheValue.SetValue(featureSelected.Key, featureSelected.Value, time.Duration(u.Seconds()))
+		*/
 	}
 
 	go metrics.GetMetrics().Update(featureSelected.Key)
 
-	return Success, featureSelected
-
-	/*finalresult, err := featureSelected.Value.GetFinalValue(vars)
-	finaltype := featureSelected.Value.Default.Value.Type
-	if err != nil {
-		return Unknown, nil, ""
-	} else {
-		return Success, finalresult, finaltype
-	}*/
+	return Success, featureSelected, nil
 
 }

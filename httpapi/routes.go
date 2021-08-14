@@ -43,6 +43,12 @@ var routes = Routes{
 		handlersConf.ConfigurationDELETE,
 	},
 	Route{
+		"configuration",
+		"PATCH",
+		"/conf/{feature}",
+		handlersConf.ConfigurationPATCH,
+	},
+	Route{
 		"feature",
 		"GET",
 		"/feature/{feature}",

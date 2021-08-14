@@ -17,6 +17,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0
+	github.com/imdario/mergo v0.3.12
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/klauspost/compress v1.13.2 // indirect
 	github.com/matishsiao/goInfo v0.0.0-20200404012835-b5f882ee2288

@@ -30,7 +30,8 @@ message featureCreationRequest {
         repeated string tags =2;  
     }
     string name = 1;
-    defaultCls default = 2;
+    defaultCls defaultValue = 2;
+    metaCls meta = 3;
 }
 
 message featureResponse {
@@ -39,17 +40,25 @@ message featureResponse {
 message featureShortResponse {
     StatusType status = 1;
     string  value = 2; // serialization from string
+    string type = 3;
 }
-//TODO: add all fields of featureDefinition model. 
+
 message featureFullResponse {
+
+    //TODO: add all fields of featureDefinition model. 
+    message featureDefinition {
+        string default_ttl = 1; 
+        string  value = 2; // serialization from string
+    }
+
     StatusType status = 1;
-    string  value = 2; // serialization from string
-    string defaultttl = 3;
+    featureDefinition featureDef = 2;
 }
 
 service rubberyConfService {
     rpc Get(featureIdRequest) returns (featureFullResponse) {};
     rpc Create(featureCreationRequest) returns (featureResponse) {};
+    rpc Patch(featureCreationRequest) returns (featureResponse) {};
     rpc Delete(featureIdRequest) returns (featureResponse) {};
 }
 
