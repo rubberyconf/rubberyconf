@@ -12,6 +12,8 @@ Free, open, distributed and RESTful configuration engine
 ```
 docker-compose up -d
 ```
+If you need pass sensible information you can use *./dockerup.sh* script.
+
 - Second create your own configuration file in `./conf` folder. For example: 
 ```
 api:
@@ -65,25 +67,25 @@ hello world
 
 ## rubberyConf Api
 
-### Configuration syntax
-
-In folder *./docs_examples* you'll find some examples of features addmited by the rubberyconf.
-
-[Swagger file description](./docs_examples/swagger.yml)
-
-Examples of features:
- * toggle1.yml - simple feature
- * toggle2.yml - advanced example
- * toggle3.yml - other example 
- * toggle4.yml - another example 
-
-
 ### Endpoints
 
+- GET /feature/:feature 
 - GET /conf/:feature 
-- GET /conf/:feature/:branch (if you're using Gogs or Github)
+- PATCH /conf/:feature 
 - POST /conf/:feature
 - DELETE /conf/:feature
+
+[Swagger file description](./docs/api/swagger.yml)
+
+### Feature description 
+
+In folder *./docs/features* you'll find some examples of features addmited by the rubberyconf.
+
+Examples of features:
+ * [toggle1.yml - simple feature](./docs/features/toggle1.yml)
+ * [toggle2.yml - advanced example](./docs/features/toggle2.yml)
+ * [toggle3.yml - other example](./docs/features/toggle3.yml) 
+
 
 ## Datasource
 
@@ -96,7 +98,8 @@ Examples of features:
 
 ## Cache
 
-To make this configurations extremly fast for your consumers. `rubberconf` uses a cache storage.
+To enable this configurations extremly fast for your consumers `rubberconf` uses a cache system.
+
 - None (cache is disabled)
 - Redis
 - InMemory (in-process memory)
@@ -122,6 +125,8 @@ Examples:
 - http headers (ip, browser, platform, location, etc..)
 - http querystring parameter
 - client version
+
+A complete list of features implemented is [here](./internal/feature/rules)
 
 Those logics are extensibles, your contributions are welcome.   
 

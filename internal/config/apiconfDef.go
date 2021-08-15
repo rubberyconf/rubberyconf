@@ -29,6 +29,7 @@ type Config struct {
 		Username      string `yaml:"user" envconfig:"GIT_USERNAME"`
 		Password      string `yaml:"pass" envconfig:"GIT_PASSWORD"`
 		Url           string `yaml:"url" envconfig:"GIT_URL"`
+		Repo          string `yaml:"repo" envconfig:"GIT_REPO"`
 		ApiToken      string `yaml:"apitoken" envconfig:"GIT_APITOKEN"`
 		BranchDefault string `yaml:"branchdefault" envconfig:"GIT_BRANCHDEFAULT"`
 	} `yaml:"gitserver"`

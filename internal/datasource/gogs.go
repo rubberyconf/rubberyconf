@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 
@@ -87,4 +88,11 @@ func (source *DataSourceGogs) EnableFeature(keys map[string]string) (Feature, bo
 
 func (source *DataSourceGogs) reviewDependencies() {
 	reviewDependencies()
+	conf := config.GetConfiguration()
+	if conf.Api.Source == GOGS {
+		if conf.GitServer.Url == "" {
+			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not url configured, check config yml file.", nil)
+			os.Exit(2)
+		}
+	}
 }

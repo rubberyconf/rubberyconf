@@ -28,7 +28,8 @@ gitserver:
   user: ""
   pass: ""
   url: "http://localhost:3000/acme/configuration"
-  apitoken: ""
+  apitoken: "" #personal access token insted of user/pass
+  repo: ""
   branchdefault: "master"
 
 elastic:
