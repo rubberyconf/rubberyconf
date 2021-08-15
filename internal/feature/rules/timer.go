@@ -6,8 +6,9 @@ import (
 )
 
 type FeatureTimer struct {
-	TriggerTime string `yaml:"triggerTime"`
+	TriggerTime string `yaml:"triggerTime" json:"triggerTime"`
 }
+
 type RuleTimer struct {
 }
 

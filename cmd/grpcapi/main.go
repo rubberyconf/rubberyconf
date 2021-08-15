@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"log"
@@ -11,6 +12,9 @@ import (
 	"github.com/rubberyconf/rubberyconf/internal/business"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type ConfServer struct {
@@ -18,7 +22,6 @@ type ConfServer struct {
 type FeatureServer struct {
 }
 
-//TODO: complete full mapping
 func (*ConfServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
 	var logic business.Business
 	name := request.FeatureName
@@ -27,65 +30,83 @@ func (*ConfServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest)
 	result, content, err := logic.GetFeatureFull(vars)
 
 	response := &grpcapipb.FeatureFullResponse{
-		Status:     grpcapipb.StatusType(result),
-		FeatureDef: mapperFromFeatureDef(content),
+		Status:  grpcapipb.StatusType(result),
+		Feature: mapperFrom(content),
 	}
 	return response, err
 }
 
-func mapperToFeatureDef(in *grpcapipb.FeatureCreationRequestDefaultCls) feature.FeatureDefinition {
+//instead of mapping field by field, we've tagged fields with `json` tag. Every field has the same id in both
+// structures. So we ca serialize and deserialize through json format.
+func mapperTo(in *grpcapipb.FeatureDefinition) *feature.FeatureDefinition {
 
-	var result = feature.FeatureDefinition{}
-	result.Default.Value.Data = in.Value.Data // to be reviewed
-	result.Default.Value.Type = in.Value.Type
-	//TODO: complete other fields
+	var result = new(feature.FeatureDefinition)
 
+	m := protojson.MarshalOptions{
+		Indent:          "  ",
+		EmitUnpopulated: true,
+	}
+	jsonBytes, err := m.Marshal(in)
+	if err != nil {
+		panic(err)
+	}
+	//fmt.Println(string(jsonBytes))
+
+	err = json.Unmarshal(jsonBytes, result)
+	if err != nil {
+		panic(err)
+	}
 	return result
 
 }
 
-func mapperFromFeatureDef(f *feature.FeatureDefinition) *grpcapipb.FeatureFullResponseFeatureDefinition {
-	var result = new(grpcapipb.FeatureFullResponseFeatureDefinition)
+func mapperFrom(in *feature.FeatureDefinition) *grpcapipb.FeatureDefinition {
+	var result = new(grpcapipb.FeatureDefinition)
 
-	//TODO: implement mapper
-	result.DefaultTtl = f.Default.TTL
-	// .....other fields...
+	jsonBytes, err := json.Marshal(in)
+	if err != nil {
+		panic(err)
+	}
 
+	err = json.Unmarshal(jsonBytes, result)
+	if err != nil {
+		panic(err)
+	}
 	return result
 }
 
-func (*ConfServer) Create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureResponse, error) {
+func (*ConfServer) Create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureBasicResponse, error) {
 	var logic business.Business
 	name := request.Name
 
 	vars := map[string]string{"feature": name}
 
-	ruberConf := mapperToFeatureDef(request.DefaultValue)
+	ruberConf := mapperTo(request.Feature)
 
-	result, err := logic.CreateFeature(vars, ruberConf)
+	result, err := logic.CreateFeature(vars, *ruberConf)
 
-	response := &grpcapipb.FeatureResponse{
+	response := &grpcapipb.FeatureBasicResponse{
 		Status: grpcapipb.StatusType(result),
 	}
 	return response, err
 }
 
-func (*ConfServer) Patch(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureResponse, error) {
+func (*ConfServer) Patch(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureBasicResponse, error) {
 	var logic business.Business
 	name := request.Name
 
 	vars := map[string]string{"feature": name}
 
-	ruberConf := mapperToFeatureDef(request.DefaultValue)
+	ruberConf := mapperTo(request.Feature)
 
-	result, err := logic.PatchFeature(vars, ruberConf)
+	result, err := logic.PatchFeature(vars, *ruberConf)
 
-	response := &grpcapipb.FeatureResponse{
+	response := &grpcapipb.FeatureBasicResponse{
 		Status: grpcapipb.StatusType(result),
 	}
 	return response, err
 }
-func (*ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureResponse, error) {
+func (*ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureBasicResponse, error) {
 	var logic business.Business
 	name := request.FeatureName
 
@@ -93,7 +114,7 @@ func (*ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdReque
 
 	result, err := logic.DeleteFeature(vars)
 
-	response := &grpcapipb.FeatureResponse{
+	response := &grpcapipb.FeatureBasicResponse{
 		Status: grpcapipb.StatusType(result),
 	}
 	return response, err
@@ -106,12 +127,20 @@ func (*FeatureServer) Get(ctx context.Context, request *grpcapipb.FeatureIdReque
 	vars := map[string]string{"feature": name}
 
 	result, value, typevalue, err := logic.GetFeatureOnlyValue(vars)
-
-	valueStr := fmt.Sprintf("%v", value)
-
+	if err != nil {
+		panic(err)
+	}
+	a, ok := value.(proto.Message)
+	if !ok {
+		panic("error casting")
+	}
+	b, err := anypb.New(a)
+	if err != nil {
+		panic(err)
+	}
 	response := &grpcapipb.FeatureShortResponse{
 		Status: grpcapipb.StatusType(result),
-		Value:  valueStr,
+		Value:  b,
 		Type:   typevalue,
 	}
 	return response, err

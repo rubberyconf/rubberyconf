@@ -4,6 +4,8 @@ syntax = "proto3";
 package grpcapi;
 option go_package = "/grpcapipb";
 
+import "google/protobuf/any.proto";
+
 enum StatusType {
         Success = 0;
         BadRequest = 1;
@@ -14,52 +16,88 @@ message featureIdRequest {
     string featureName = 1;
 }
 
-message featureCreationRequest {
-    
-    message valueCls {
-        string data = 1; // serialization to string
-        string type = 2;
-    }
+//Note: all these fields must have same names with json tagged in feature.FeatureDefinition. 
+message featureDefinition {
 
     message defaultCls {
+        message valueCls {
+            google.protobuf.Any data = 1; // serialization to string by default
+            string type = 2;
+        }
         valueCls value = 1;
+        string ttl =2;
     }
 
     message metaCls {
         string description =1;
         repeated string tags =2;  
     }
+
+    message rulesCls {
+        message keyValueCls {
+            string key =1;
+            repeated string value =2;
+        }
+        message featureTimerCls {
+            string triggerTimer =1;
+        }
+        repeated string environment = 1;
+        keyValueCls  queryString =2;
+        keyValueCls  header =3;
+        repeated string platform =4;
+        repeated string version =5;
+        repeated string country =6;
+        repeated string city =7;
+        repeated string userId =8;
+        repeated string userGroup =9;
+        featureTimerCls featureTimer = 10;
+    }
+
+    message rollOutCls {
+        string strategy =1;
+        string enabledForOnly =2;
+        string selector =3;
+    }
+
+    message configCls {
+        string id =1;
+        string rulesBehaviour =2;
+        repeated rulesCls rules =3;
+        google.protobuf.Any value =4; 
+        rollOutCls rollout = 5;
+    }
+
     string name = 1;
-    defaultCls defaultValue = 2;
-    metaCls meta = 3;
+    metaCls meta =2;
+    defaultCls default =3;
+    repeated configCls configurations =4; 
+
 }
 
-message featureResponse {
+message featureCreationRequest {
+    string name = 1;
+    featureDefinition feature = 2;
+}
+
+message featureBasicResponse {
     StatusType status = 1;
 }
 message featureShortResponse {
     StatusType status = 1;
-    string  value = 2; // serialization from string
+    google.protobuf.Any  value = 2; // serialization from string
     string type = 3;
 }
 
 message featureFullResponse {
-
-    //TODO: add all fields of featureDefinition model. 
-    message featureDefinition {
-        string default_ttl = 1; 
-        string  value = 2; // serialization from string
-    }
-
     StatusType status = 1;
-    featureDefinition featureDef = 2;
+    featureDefinition feature = 2;
 }
 
 service rubberyConfService {
     rpc Get(featureIdRequest) returns (featureFullResponse) {};
-    rpc Create(featureCreationRequest) returns (featureResponse) {};
-    rpc Patch(featureCreationRequest) returns (featureResponse) {};
-    rpc Delete(featureIdRequest) returns (featureResponse) {};
+    rpc Create(featureCreationRequest) returns (featureBasicResponse) {};
+    rpc Patch(featureCreationRequest) returns (featureBasicResponse) {};
+    rpc Delete(featureIdRequest) returns (featureBasicResponse) {};
 }
 
 service rubberyFeatureService {

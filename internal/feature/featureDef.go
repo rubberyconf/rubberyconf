@@ -12,31 +12,31 @@ import (
 )
 
 type FeatureDefinition struct {
-	Name string `yaml:"name"`
+	Name string `yaml:"name" json:"name"`
 	Meta struct {
-		Description string   `yaml:"description"`
-		Tags        []string `yaml:"tags"`
-	} `yaml:"meta"`
+		Description string   `yaml:"description" json:"description"`
+		Tags        []string `yaml:"tags" json:"tags,omitempty"`
+	} `yaml:"meta" json:"meta"`
 
 	Default struct {
 		Value struct {
-			Data interface{} `yaml:"data"`
-			Type string      `yaml:"type"`
-		} `yaml:"value"`
-		TTL string `yaml:"ttl"`
-	} `yaml:"default"`
+			Data interface{} `yaml:"data" json:"data"`
+			Type string      `yaml:"type" json:"type"`
+		} `yaml:"value" json:"value"`
+		TTL string `yaml:"ttl" json:"ttl"`
+	} `yaml:"default" json:"default"`
 
 	Configurations []struct {
-		ConfigId       string              `yaml:"id"`
-		RulesBehaviour string              `yaml:"rulesBehaviour"`
-		Rules          []rules.FeatureRule `yaml:"rules"`
-		Value          interface{}         `yaml:"value"`
+		ConfigId       string              `yaml:"id" json:"id"`
+		RulesBehaviour string              `yaml:"rulesBehaviour" json:"rulesBehaviour"`
+		Rules          []rules.FeatureRule `yaml:"rules" json:"rules,omitempty"`
+		Value          interface{}         `yaml:"value" json:"value"`
 		Rollout        struct {
-			Strategy       string `yaml:"strategy"`
-			EnabledForOnly string `yaml:"enabledForOnly"`
-			Selector       string `yaml:"selector"`
-		} `yaml:"rollout"`
-	} `yaml:"configurations"`
+			Strategy       string `yaml:"strategy" json:"strategy"`
+			EnabledForOnly string `yaml:"enabledForOnly" json:"enabledForOnly"`
+			Selector       string `yaml:"selector" json:"selector"`
+		} `yaml:"rollout" json:"rollout"`
+	} `yaml:"configurations" json:"configurations,omitempty"`
 }
 
 func (conf *FeatureDefinition) LoadFromYaml(payload interface{}) error {
