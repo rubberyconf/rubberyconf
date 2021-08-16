@@ -26,6 +26,7 @@ redis:
 
 gitserver:
   user: ""
+  email: ""
   pass: ""
   url: "http://localhost:3000/acme/configuration"
   apitoken: "" #personal access token insted of user/pass

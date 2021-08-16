@@ -63,10 +63,6 @@ func (source *DataSourceGithub) checkErrors(err error) bool {
 func (source *DataSourceGithub) GetFeature(feature *Feature) (bool, error) {
 
 	conf := config.GetConfiguration()
-	//repo, response, err := source.client.Repositories.Get(context.Background(), conf.GitServer.Username, conf.GitServer.Repo)
-	/*if ok := source.checkErrors(err); ok {
-		return false, err
-	}*/
 
 	fc, _, _, err := source.client.Repositories.GetContents(
 		context.Background(),
@@ -96,7 +92,38 @@ func (source *DataSourceGithub) DeleteFeature(feature Feature) bool {
 
 func (source *DataSourceGithub) CreateFeature(feature Feature) bool {
 
-	log.Panicf(errorMessage)
+	conf := config.GetConfiguration()
+
+	ctx := context.Background()
+	//fileContent := []byte("This is the content of my file\nand the 2nd line of it")
+	out, err := yaml.Marshal(feature.Value)
+	if err != nil {
+		logs.GetLogs().WriteMessage("error", "error marshaling yaml", err)
+		return false
+	}
+
+	branch := "" // TODO: getting from querystring!!!! Where is it?
+	if branch == "" {
+		branch = conf.GitServer.BranchDefault
+	}
+
+	fileName := feature.Key + ".yml"
+	// Note: the file needs to be absent from the repository as you are not
+	// specifying a SHA reference here.
+	opts := &github.RepositoryContentFileOptions{
+		Message: github.String("rubberyconf commit"),
+		Content: out,
+		Branch:  github.String(branch),
+		Committer: &github.CommitAuthor{
+			Name:  github.String("rubberyconf on behalf of " + conf.GitServer.Username),
+			Email: github.String(conf.GitServer.Email)},
+	}
+	_, _, err = source.client.Repositories.CreateFile(ctx, conf.GitServer.Organization, conf.GitServer.Repo, fileName, opts)
+	if err != nil {
+		logs.GetLogs().WriteMessage("error", "impossible create feature in github", err)
+		return false
+	}
+
 	return false
 }
 
@@ -107,8 +134,20 @@ func (source *DataSourceGithub) reviewDependencies() {
 	reviewDependencies()
 	conf := config.GetConfiguration()
 	if conf.Api.Source == GOGS {
+		if conf.GitServer.ApiToken == "" {
+			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not apitoken configured, check config yml file.", nil)
+			os.Exit(2)
+		}
 		if conf.GitServer.Username == "" {
 			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not username configured, check config yml file.", nil)
+			os.Exit(2)
+		}
+		if conf.GitServer.Email == "" {
+			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not email configured, check config yml file.", nil)
+			os.Exit(2)
+		}
+		if conf.GitServer.Organization == "" {
+			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not email configured, check config yml file.", nil)
 			os.Exit(2)
 		}
 	}
