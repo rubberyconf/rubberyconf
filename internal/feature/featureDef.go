@@ -15,6 +15,7 @@ type FeatureDefinition struct {
 	Name string `yaml:"name" json:"name"`
 	Meta struct {
 		Description string   `yaml:"description" json:"description"`
+		Owner       string   `yaml:"owner" json:"owner"`
 		Tags        []string `yaml:"tags" json:"tags,omitempty"`
 	} `yaml:"meta" json:"meta"`
 
@@ -37,10 +38,10 @@ type FeatureDefinition struct {
 			Selector       string `yaml:"selector" json:"selector"`
 		} `yaml:"rollout" json:"rollout"`
 	} `yaml:"configurations" json:"configurations,omitempty"`
+	//LastTimeUsed time.Time `yaml:"lasttimeused" json:"lasttimeused,omitempty"`
 }
 
 func (conf *FeatureDefinition) LoadFromYaml(payload interface{}) error {
-
 	aux := fmt.Sprintf("%v", payload)
 	decoder := yaml.NewDecoder(strings.NewReader(aux))
 	err := decoder.Decode(conf)

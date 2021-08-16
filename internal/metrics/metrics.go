@@ -38,7 +38,7 @@ var (
 func GetMetrics() *Metrics {
 	mongoOnce.Do(func() {
 		metrics = new(Metrics)
-		metrics.connect()
+		//metrics.connect()
 	})
 	return metrics
 }
@@ -47,7 +47,7 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 
 	newdocument := false
 	var metricRegister MongoMetrics
-	filter := bson.D{{"feature", feature}}
+	filter := bson.D{primitive.E{Key: "feature", Value: feature}}
 	err := metric.metricsCollection.FindOne(ctx, filter).Decode(&metricRegister)
 	if err == mongo.ErrNoDocuments {
 		newdocument = true
@@ -76,8 +76,10 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 func (metric *Metrics) storeMetrics(metricRegister *MongoMetrics) (bool, error) {
 
 	_, err := metric.metricsCollection.UpdateOne(ctx,
-		bson.D{{"feature", metricRegister.Feature}},
-		bson.D{{"$set", bson.D{{"counter", metricRegister.Counter}}}})
+		bson.D{primitive.E{Key: "feature", Value: metricRegister.Feature}},
+		bson.D{primitive.E{Key: "$set", Value: bson.D{
+			primitive.E{Key: "counter", Value: metricRegister.Counter},
+			primitive.E{Key: "UpdatedAt", Value: time.Now()}}}})
 
 	if err == mongo.ErrNoDocuments {
 		log.Fatal("It should be create earlier")
@@ -97,6 +99,8 @@ func (metricRegister *MongoMetrics) Update() {
 
 func (metric *Metrics) Update(feature string) (*MongoMetrics, error) {
 
+	metric.connect()
+	defer metric.disconnect()
 	metricRegister, err := metric.fetchMetrics(feature)
 	if err != nil {
 		return nil, err
@@ -114,7 +118,9 @@ func (metric *Metrics) Update(feature string) (*MongoMetrics, error) {
 
 func (metric *Metrics) Remove(feature string) (bool, error) {
 
-	_, err := metric.metricsCollection.DeleteMany(ctx, bson.D{{"feature", feature}})
+	metric.connect()
+	defer metric.disconnect()
+	_, err := metric.metricsCollection.DeleteMany(ctx, bson.D{primitive.E{Key: "feature", Value: feature}})
 	if err != nil {
 		return false, err
 	}
@@ -131,13 +137,12 @@ func (metric *Metrics) connect() {
 		os.Exit(2)
 	}
 	metrics.client = client
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
+	err = client.Connect(context.Background())
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", "unable to connect monogo client", err)
 		os.Exit(2)
 	}
-	err = client.Ping(ctx, nil)
+	err = client.Ping(context.Background(), nil)
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", "mongodb doesn't answer ping", err)
 		os.Exit(2)
@@ -149,4 +154,8 @@ func (metric *Metrics) connect() {
 
 	metrics.metricsCollection = metricsCollection
 
+}
+
+func (metric *Metrics) disconnect() {
+	metric.client.Disconnect(context.Background())
 }

@@ -5,6 +5,7 @@ package grpcapi;
 option go_package = "/grpcapipb";
 
 import "google/protobuf/any.proto";
+//import "google/protobuf/timestamp.proto";
 
 enum StatusType {
         Success = 0;
@@ -31,6 +32,7 @@ message featureDefinition {
     message metaCls {
         string description =1;
         repeated string tags =2;  
+        string owner =3;  
     }
 
     message rulesCls {
@@ -71,6 +73,7 @@ message featureDefinition {
     metaCls meta =2;
     defaultCls default =3;
     repeated configCls configurations =4; 
+    //google.protobuf.Timestamp lasttimeused=5;
 
 }
 
