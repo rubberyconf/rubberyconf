@@ -53,12 +53,12 @@ func TestInRedisOptions(t *testing.T) {
 	for _, tt := range tests {
 		testname := fmt.Sprintf("key: %s, value: %s, duration: %d", tt.key, tt.value, tt.duration)
 		t.Run(testname, func(t *testing.T) {
-			result, err := storage.SetValue(tt.key, tt.value, tt.duration)
+			result, err := storage.SetValue(ctx, tt.key, tt.value, tt.duration)
 			if !result || err != nil {
 				t.Errorf("Imposible to store this object")
 			}
 			time.Sleep(500 * time.Millisecond)
-			_, found, err := storage.GetValue(tt.key)
+			_, found, err := storage.GetValue(ctx, tt.key)
 			if err != nil && found == tt.found {
 				t.Errorf("got '%t', want '%t'", found, tt.found)
 			}

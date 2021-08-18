@@ -24,7 +24,6 @@ type DataSourceMongoDB struct {
 var (
 	mongodbDataSource *DataSourceMongoDB
 	onceMongodb       sync.Once
-	ctx               context.Context
 )
 
 type MongoFeature struct {
@@ -35,32 +34,49 @@ type MongoFeature struct {
 	UpdatedAt  time.Time                 `json:"updatedAt" bson:"updatedAt"`
 }
 
-func NewDataSourceMongoDB() *DataSourceMongoDB {
+func NewDataSourceMongoDB(ctx context.Context) *DataSourceMongoDB {
 
 	onceMongodb.Do(func() {
 		mongodbDataSource = new(DataSourceMongoDB)
-		mongodbDataSource.connect()
+		mongodbDataSource.connect(ctx)
 	})
 	return mongodbDataSource
 }
-func (source *DataSourceMongoDB) GetFeature(feature *Feature) (bool, error) {
+
+func (source *DataSourceMongoDB) timeOut() time.Duration {
+	timeout, err := time.ParseDuration(config.GetConfiguration().Database.TimeOut)
+	if err != nil {
+		timeout = 1 * time.Second
+	}
+	return timeout
+}
+
+func (source *DataSourceMongoDB) GetFeature(ctx context.Context, feature *Feature) (bool, error) {
 
 	document := MongoFeature{}
-	filter := bson.D{{"FeatureKey", feature.Key}}
-	err := source.featuresCollection.FindOne(ctx, filter).Decode(&document)
+	filter := bson.D{primitive.E{Key: "FeatureKey", Value: feature.Key}}
+
+	ctxMongo, cancel := context.WithTimeout(ctx, source.timeOut())
+	err := source.featuresCollection.FindOne(ctxMongo, filter).Decode(&document)
 	if err == mongo.ErrNoDocuments {
 		feature.Value = nil
+		cancel()
 		return false, nil
 	} else if err != nil {
 		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb doesn't asnwered properly when running FindOne feature %s", feature.Key), err)
+		cancel()
 		return false, err
 	}
+	cancel()
 	feature.Value = &document.FeatureDef
 	return true, nil
 }
 
-func (source *DataSourceMongoDB) DeleteFeature(feature Feature) bool {
-	_, err := source.featuresCollection.DeleteMany(ctx, bson.D{{"FeatureKey", feature.Key}})
+func (source *DataSourceMongoDB) DeleteFeature(ctx context.Context, feature Feature) bool {
+
+	ctxMongo, cancel := context.WithTimeout(ctx, source.timeOut())
+	_, err := source.featuresCollection.DeleteMany(ctxMongo, bson.D{primitive.E{Key: "FeatureKey", Value: feature.Key}})
+	cancel()
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb didn't delete feature %s", feature.Key), err)
 		return false
@@ -68,7 +84,7 @@ func (source *DataSourceMongoDB) DeleteFeature(feature Feature) bool {
 	return true
 }
 
-func (source *DataSourceMongoDB) CreateFeature(feature Feature) bool {
+func (source *DataSourceMongoDB) CreateFeature(ctx context.Context, feature Feature) bool {
 
 	newDoc := MongoFeature{
 		CreatedAt:  time.Now(),
@@ -76,7 +92,9 @@ func (source *DataSourceMongoDB) CreateFeature(feature Feature) bool {
 		FeatureKey: feature.Key,
 		FeatureDef: *feature.Value,
 	}
-	_, err := source.featuresCollection.InsertOne(ctx, newDoc)
+	ctxMongo, cancel := context.WithTimeout(ctx, source.timeOut())
+	_, err := source.featuresCollection.InsertOne(ctxMongo, newDoc)
+	cancel()
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb didn't create a new feature document for feature %s", feature.Key), err)
 		return false
@@ -96,27 +114,29 @@ func (source *DataSourceMongoDB) reviewDependencies(conf *config.Config) {
 	}
 }
 
-func (source *DataSourceMongoDB) connect() {
+func (source *DataSourceMongoDB) connect(ctx context.Context) {
 
 	conf := config.GetConfiguration()
 	clientOptions := options.Client().ApplyURI(conf.Database.Url)
 	client, err := mongo.NewClient(clientOptions)
+	ctxMongo, cancel := context.WithTimeout(ctx, source.timeOut())
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", "unable to cerate monogo client", err)
 		os.Exit(2)
 	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
+	//ctx, _ := context.WithTimeout(ctx, 10*time.Second)
+	err = client.Connect(ctxMongo)
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", "unable to connect monogo client", err)
 		os.Exit(2)
 	}
-	err = client.Ping(ctx, nil)
+	err = client.Ping(ctxMongo, nil)
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", "mongodb doesn't answer ping", err)
 		os.Exit(2)
 	}
 	//defer client.Disconnect(ctx)
+	cancel()
 
 	source.client = client
 	database := client.Database(conf.Database.DatabaseName)

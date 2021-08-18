@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -47,11 +48,12 @@ func TestUpdateMetrics(t *testing.T) {
 	}
 	config.NewConfiguration("../../config/local.yml")
 	metricsService := GetMetrics()
+	ctx := context.TODO()
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("feature: %s, expectedCounter: %d", tt.feature, tt.expectedCounter)
 		t.Run(testname, func(t *testing.T) {
-			res, err := metricsService.Update(tt.feature)
+			res, err := metricsService.Update(ctx, tt.feature)
 			if err != nil {
 				t.Fatalf("error running the test %s", err)
 			} else {
@@ -63,7 +65,7 @@ func TestUpdateMetrics(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		metricsService.Remove(tt.feature)
+		metricsService.Remove(ctx, tt.feature)
 	}
 
 }

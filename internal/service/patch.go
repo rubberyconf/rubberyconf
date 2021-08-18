@@ -1,20 +1,22 @@
-package business
+package service
 
 import (
+	"context"
+
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 
 	"github.com/imdario/mergo"
 )
 
-func (bb Business) PatchFeature(vars map[string]string, ruberConf feature.FeatureDefinition) (int, error) {
+func (bb Service) PatchFeature(ctx context.Context, vars map[string]string, ruberConf feature.FeatureDefinition) (int, error) {
 
-	_, cacheValue, source, featureSelected, result := preRequisites(vars)
+	_, cacheValue, source, featureSelected, result := preRequisites(ctx, vars)
 
 	if !result {
 		return NotResult, nil
 	}
 
-	status, featureDefOriginal, err := bb.GetFeatureFull(vars)
+	status, featureDefOriginal, err := bb.GetFeatureFull(ctx, vars)
 
 	if status != Success {
 		return NoContent, err
@@ -26,13 +28,13 @@ func (bb Business) PatchFeature(vars map[string]string, ruberConf feature.Featur
 
 	featureSelected.Value = featureDefOriginal
 
-	res := updateCache(featureSelected, cacheValue)
+	res := updateCache(ctx, featureSelected, cacheValue)
 	if !res {
 		return Unknown, nil
 	}
 
-	source.DeleteFeature(featureSelected)
-	res = source.CreateFeature(featureSelected)
+	source.DeleteFeature(ctx, featureSelected)
+	res = source.CreateFeature(ctx, featureSelected)
 	if !res {
 		return Unknown, nil
 	}

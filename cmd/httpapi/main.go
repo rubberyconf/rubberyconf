@@ -10,7 +10,6 @@ import (
 
 	"github.com/rubberyconf/rubberyconf/httpapi"
 	"github.com/rubberyconf/rubberyconf/internal/config"
-	"github.com/rubberyconf/rubberyconf/internal/datasource"
 	"github.com/rubberyconf/rubberyconf/internal/logs"
 )
 
@@ -36,7 +35,7 @@ func main() {
 	conf := loadConfiguration(path)
 
 	router := httpapi.NewRouter()
-	datasource.SelectSource()
+	//datasource.NewDataSourceSource()
 
 	logs.GetLogs().WriteMessage("info", fmt.Sprintf("rubberyconf api started at port: %s", conf.Api.Port), nil)
 

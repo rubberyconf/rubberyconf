@@ -17,6 +17,7 @@ database:
     features: "features"
   databasename: "rubberyconfdb"
   url: "mongodb://localhost:27017/?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
+  timeout: "2s"
 
 redis:
   user: ""
@@ -32,6 +33,7 @@ gitserver:
   apitoken: "" #personal access token insted of user/pass
   repo: ""
   branchdefault: "master"
+  timeout: "2s"
 
 elastic:
   logs:

@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -9,9 +10,9 @@ import (
 )
 
 type IDataStorage interface {
-	SetValue(key string, value *feature.FeatureDefinition, timeout time.Duration) (bool, error)
-	GetValue(key string) (*feature.FeatureDefinition, bool, error)
-	DeleteValue(key string) (bool, error)
+	SetValue(ctx context.Context, key string, value *feature.FeatureDefinition, timeout time.Duration) (bool, error)
+	GetValue(ctx context.Context, key string) (*feature.FeatureDefinition, bool, error)
+	DeleteValue(ctx context.Context, key string) (bool, error)
 }
 
 const (

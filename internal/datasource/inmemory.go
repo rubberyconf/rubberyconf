@@ -1,12 +1,14 @@
 package datasource
 
 import (
+	"context"
 	"sync"
 
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
 type DataSourceInMemory struct {
+	mtx      sync.RWMutex
 	features map[string]feature.FeatureDefinition
 }
 
@@ -15,7 +17,7 @@ var (
 	onceInMemory    sync.Once
 )
 
-func NewDataSourceInMemory() *DataSourceInMemory {
+func NewDataSourceInMemory(ctx context.Context) *DataSourceInMemory {
 
 	onceInMemory.Do(func() {
 		inMemDataSource = new(DataSourceInMemory)
@@ -23,8 +25,10 @@ func NewDataSourceInMemory() *DataSourceInMemory {
 	})
 	return inMemDataSource
 }
-func (source *DataSourceInMemory) GetFeature(feature *Feature) (bool, error) {
+func (source *DataSourceInMemory) GetFeature(ctx context.Context, feature *Feature) (bool, error) {
 	var found bool
+	source.mtx.Lock()
+	defer source.mtx.Unlock()
 	//var content feature.FeatureDefinition
 	if content, found := source.features[feature.Key]; found {
 		feature.Value = &content
@@ -34,7 +38,10 @@ func (source *DataSourceInMemory) GetFeature(feature *Feature) (bool, error) {
 	return found, nil
 }
 
-func (source *DataSourceInMemory) DeleteFeature(feature Feature) bool {
+func (source *DataSourceInMemory) DeleteFeature(ctx context.Context, feature Feature) bool {
+	source.mtx.Lock()
+	defer source.mtx.Unlock()
+
 	_, ok := source.features[feature.Key]
 	if ok {
 		delete(source.features, feature.Key)
@@ -44,7 +51,10 @@ func (source *DataSourceInMemory) DeleteFeature(feature Feature) bool {
 	}
 }
 
-func (source *DataSourceInMemory) CreateFeature(feature Feature) bool {
+func (source *DataSourceInMemory) CreateFeature(ctx context.Context, feature Feature) bool {
+	source.mtx.Lock()
+	defer source.mtx.Unlock()
+
 	source.features[feature.Key] = *feature.Value
 	return true
 }

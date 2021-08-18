@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -23,15 +24,15 @@ func NewDataStorageSkip() *skip {
 	return skipped
 }
 
-func (nc *skip) GetValue(key string) (*feature.FeatureDefinition, bool, error) {
+func (nc *skip) GetValue(ctx context.Context, key string) (*feature.FeatureDefinition, bool, error) {
 	found := false
 	return nil, found, nil
 }
 
-func (nc *skip) DeleteValue(key string) (bool, error) {
+func (nc *skip) DeleteValue(ctx context.Context, key string) (bool, error) {
 	return true, nil
 }
 
-func (nc *skip) SetValue(key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
+func (nc *skip) SetValue(ctx context.Context, key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
 	return true, nil
 }

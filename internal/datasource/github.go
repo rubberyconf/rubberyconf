@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/google/go-github/v38/github"
 	"github.com/rubberyconf/rubberyconf/internal/config"
@@ -26,7 +27,7 @@ var (
 	onceGitHub       sync.Once
 )
 
-func NewDataSourceGithub() *DataSourceGithub {
+func NewDataSourceGithub(ctx context.Context) *DataSourceGithub {
 
 	onceGitHub.Do(func() {
 		conf := config.GetConfiguration()
@@ -45,7 +46,13 @@ func NewDataSourceGithub() *DataSourceGithub {
 	})
 	return githubDataSource
 }
-
+func (source *DataSourceGithub) timeOut() time.Duration {
+	timeout, err := time.ParseDuration(config.GetConfiguration().GitServer.TimeOut)
+	if err != nil {
+		timeout = 1 * time.Second
+	}
+	return timeout
+}
 func (source *DataSourceGithub) checkErrors(err error) bool {
 	if _, ok := err.(*github.RateLimitError); ok {
 		logs.GetLogs().WriteMessage("error", "error getting access to github, rate limiting reached", err)
@@ -60,16 +67,18 @@ func (source *DataSourceGithub) checkErrors(err error) bool {
 	return false
 }
 
-func (source *DataSourceGithub) GetFeature(feature *Feature) (bool, error) {
+func (source *DataSourceGithub) GetFeature(ctx context.Context, feature *Feature) (bool, error) {
 
 	conf := config.GetConfiguration()
 
+	ctxGitHub, cancel := context.WithTimeout(ctx, source.timeOut())
 	fc, _, _, err := source.client.Repositories.GetContents(
-		context.Background(),
+		ctxGitHub,
 		conf.GitServer.Username,
 		conf.GitServer.Repo,
 		feature.Key,
 		nil)
+	cancel()
 
 	if ok := source.checkErrors(err); ok {
 		return false, err
@@ -85,16 +94,15 @@ func (source *DataSourceGithub) GetFeature(feature *Feature) (bool, error) {
 	return true, nil
 }
 
-func (source *DataSourceGithub) DeleteFeature(feature Feature) bool {
+func (source *DataSourceGithub) DeleteFeature(ctx context.Context, feature Feature) bool {
 	log.Panicf(errorMessage)
 	return false
 }
 
-func (source *DataSourceGithub) CreateFeature(feature Feature) bool {
+func (source *DataSourceGithub) CreateFeature(ctx context.Context, feature Feature) bool {
 
 	conf := config.GetConfiguration()
 
-	ctx := context.Background()
 	//fileContent := []byte("This is the content of my file\nand the 2nd line of it")
 	out, err := yaml.Marshal(feature.Value)
 	if err != nil {
@@ -118,11 +126,14 @@ func (source *DataSourceGithub) CreateFeature(feature Feature) bool {
 			Name:  github.String("rubberyconf on behalf of " + conf.GitServer.Username),
 			Email: github.String(conf.GitServer.Email)},
 	}
-	_, _, err = source.client.Repositories.CreateFile(ctx, conf.GitServer.Organization, conf.GitServer.Repo, fileName, opts)
+	ctxGitHub, cancel := context.WithTimeout(ctx, source.timeOut())
+	_, _, err = source.client.Repositories.CreateFile(ctxGitHub, conf.GitServer.Organization, conf.GitServer.Repo, fileName, opts)
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", "impossible create feature in github", err)
+		cancel()
 		return false
 	}
+	cancel()
 
 	return false
 }

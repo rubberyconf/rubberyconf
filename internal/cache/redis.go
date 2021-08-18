@@ -18,7 +18,6 @@ type redisClient struct {
 }
 
 var (
-	ctx       = context.Background()
 	redisClnt *redisClient
 	onceRedis sync.Once
 )
@@ -43,7 +42,7 @@ func NewDataStorageRedis() *redisClient {
 	return redisClnt
 }
 
-func (aux *redisClient) GetValue(key string) (*feature.FeatureDefinition, bool, error) {
+func (aux *redisClient) GetValue(ctx context.Context, key string) (*feature.FeatureDefinition, bool, error) {
 
 	val, err := aux.rbd.Get(ctx, key).Result()
 	if err == redis.Nil {
@@ -63,7 +62,7 @@ func (aux *redisClient) GetValue(key string) (*feature.FeatureDefinition, bool, 
 
 }
 
-func (aux *redisClient) SetValue(key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
+func (aux *redisClient) SetValue(ctx context.Context, key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
 
 	svalue, err := value.ToString()
 	if err != nil {
@@ -78,7 +77,7 @@ func (aux *redisClient) SetValue(key string, value *feature.FeatureDefinition, e
 	}
 }
 
-func (aux *redisClient) DeleteValue(key string) (bool, error) {
+func (aux *redisClient) DeleteValue(ctx context.Context, key string) (bool, error) {
 
 	err := aux.rbd.Del(ctx, key).Err()
 	if err != nil {

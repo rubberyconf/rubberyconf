@@ -10,6 +10,9 @@ import (
 func NewRouter() http.Handler { ////*mux.Router { //
 
 	router := mux.NewRouter().StrictSlash(true)
+
+	router.Use(newServerMiddleware())
+
 	for _, route := range routes {
 		var handler http.Handler
 

@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -31,7 +32,7 @@ func NewDataStorageInMemory() *inMemoryClient {
 	return inMemClient
 }
 
-func (nc *inMemoryClient) GetValue(key string) (*feature.FeatureDefinition, bool, error) {
+func (nc *inMemoryClient) GetValue(ctx context.Context, key string) (*feature.FeatureDefinition, bool, error) {
 	var found bool
 	var content itemInMemory
 
@@ -49,13 +50,13 @@ func (nc *inMemoryClient) GetValue(key string) (*feature.FeatureDefinition, bool
 
 }
 
-func (nc *inMemoryClient) SetValue(key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
+func (nc *inMemoryClient) SetValue(ctx context.Context, key string, value *feature.FeatureDefinition, expiration time.Duration) (bool, error) {
 
 	aux := itemInMemory{value: value, ttl: expiration, initTime: time.Now()}
 	nc.values[key] = aux
 	return true, nil
 }
-func (nc *inMemoryClient) DeleteValue(key string) (bool, error) {
+func (nc *inMemoryClient) DeleteValue(ctx context.Context, key string) (bool, error) {
 
 	delete(nc.values, key)
 	return true, nil

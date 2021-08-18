@@ -2,6 +2,7 @@ package datasource
 
 import (
 	//"context"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -25,7 +26,7 @@ var (
 	//errorMessage  = "error gogs not implemented yet, use git client in your source"
 )
 
-func NewDataSourceGogs() *DataSourceGogs {
+func NewDataSourceGogs(ctx context.Context) *DataSourceGogs {
 
 	onceGogs.Do(func() {
 		conf := config.GetConfiguration()
@@ -35,7 +36,7 @@ func NewDataSourceGogs() *DataSourceGogs {
 	return gogsDataSource
 }
 
-func (source *DataSourceGogs) GetFeature(feat *Feature) (bool, error) {
+func (source *DataSourceGogs) GetFeature(ctx context.Context, feat *Feature) (bool, error) {
 
 	client := &http.Client{}
 	finalURL := source.Url + feat.Key
@@ -72,12 +73,12 @@ func (source *DataSourceGogs) GetFeature(feat *Feature) (bool, error) {
 
 }
 
-func (source *DataSourceGogs) DeleteFeature(feature Feature) bool {
+func (source *DataSourceGogs) DeleteFeature(ctx context.Context, feature Feature) bool {
 	log.Panicf(errorMessage)
 	return false
 }
 
-func (source *DataSourceGogs) CreateFeature(feature Feature) bool {
+func (source *DataSourceGogs) CreateFeature(ctx context.Context, feature Feature) bool {
 	log.Panicf(errorMessage)
 	return false
 }

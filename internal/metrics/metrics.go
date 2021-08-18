@@ -17,8 +17,6 @@ import (
 )
 
 type Metrics struct {
-	client            *mongo.Client
-	metricsCollection *mongo.Collection
 }
 
 type MongoMetrics struct {
@@ -32,28 +30,39 @@ type MongoMetrics struct {
 var (
 	metrics   *Metrics
 	mongoOnce sync.Once
-	ctx       context.Context
 )
 
 func GetMetrics() *Metrics {
 	mongoOnce.Do(func() {
 		metrics = new(Metrics)
-		//metrics.connect()
 	})
 	return metrics
 }
 
-func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
+func (metric *Metrics) timeOut() time.Duration {
+	timeout, err := time.ParseDuration(config.GetConfiguration().Database.TimeOut)
+	if err != nil {
+		timeout = 1 * time.Second
+	}
+	return timeout
+}
+
+func (metric *Metrics) fetchMetrics(ctx context.Context, client *mongo.Client, feature string) (*MongoMetrics, error) {
 
 	newdocument := false
 	var metricRegister MongoMetrics
 	filter := bson.D{primitive.E{Key: "feature", Value: feature}}
-	err := metric.metricsCollection.FindOne(ctx, filter).Decode(&metricRegister)
+
+	ctxMongo, cancel := context.WithTimeout(ctx, metric.timeOut())
+
+	metricsCollection := metric.getMetricsCollection(client)
+	err := metricsCollection.FindOne(ctxMongo, filter).Decode(&metricRegister)
 	if err == mongo.ErrNoDocuments {
 		newdocument = true
 	} else if err != nil {
 		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb doesn't asnwered properly when running FindOne feature %s", feature), err)
 	}
+	cancel()
 
 	if newdocument {
 
@@ -63,24 +72,29 @@ func (metric *Metrics) fetchMetrics(feature string) (*MongoMetrics, error) {
 			UpdatedAt: time.Now(),
 			Counter:   0,
 		}
-		_, err := metric.metricsCollection.InsertOne(ctx, newDoc)
+		ctxMongo, cancel = context.WithTimeout(ctx, metric.timeOut())
+		_, err := metricsCollection.InsertOne(ctxMongo, newDoc)
 		if err != nil {
 			logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb didn't create a new metric document for feature: %s", feature), err)
+			cancel()
 			return nil, err
 		}
+		cancel()
 		return &newDoc, nil
 	} else {
 		return &metricRegister, nil
 	}
 }
-func (metric *Metrics) storeMetrics(metricRegister *MongoMetrics) (bool, error) {
+func (metric *Metrics) storeMetrics(ctx context.Context, client *mongo.Client, metricRegister *MongoMetrics) (bool, error) {
 
-	_, err := metric.metricsCollection.UpdateOne(ctx,
+	ctxMongo, cancel := context.WithTimeout(ctx, metric.timeOut())
+	metricsCollection := metric.getMetricsCollection(client)
+	_, err := metricsCollection.UpdateOne(ctxMongo,
 		bson.D{primitive.E{Key: "feature", Value: metricRegister.Feature}},
 		bson.D{primitive.E{Key: "$set", Value: bson.D{
 			primitive.E{Key: "counter", Value: metricRegister.Counter},
 			primitive.E{Key: "UpdatedAt", Value: time.Now()}}}})
-
+	cancel()
 	if err == mongo.ErrNoDocuments {
 		log.Fatal("It should be create earlier")
 		return false, err
@@ -97,18 +111,18 @@ func (metricRegister *MongoMetrics) Update() {
 	metricRegister.UpdatedAt = time.Now()
 }
 
-func (metric *Metrics) Update(feature string) (*MongoMetrics, error) {
+func (metric *Metrics) Update(ctx context.Context, feature string) (*MongoMetrics, error) {
 
-	metric.connect()
-	defer metric.disconnect()
-	metricRegister, err := metric.fetchMetrics(feature)
+	client := metric.connect(ctx)
+	defer metric.disconnect(ctx, client)
+	metricRegister, err := metric.fetchMetrics(ctx, client, feature)
 	if err != nil {
 		return nil, err
 	}
 
 	metricRegister.Update()
 
-	_, err = metric.storeMetrics(metricRegister)
+	_, err = metric.storeMetrics(ctx, client, metricRegister)
 	if err != nil {
 		return nil, err
 	}
@@ -116,18 +130,29 @@ func (metric *Metrics) Update(feature string) (*MongoMetrics, error) {
 	return metricRegister, nil
 }
 
-func (metric *Metrics) Remove(feature string) (bool, error) {
+func (metric *Metrics) getMetricsCollection(client *mongo.Client) *mongo.Collection {
 
-	metric.connect()
-	defer metric.disconnect()
-	_, err := metric.metricsCollection.DeleteMany(ctx, bson.D{primitive.E{Key: "feature", Value: feature}})
+	conf := config.GetConfiguration()
+	database := client.Database(conf.Database.DatabaseName)
+	metricsCollection := database.Collection(conf.Database.Collections.Metrics)
+	return metricsCollection
+}
+
+func (metric *Metrics) Remove(ctx context.Context, feature string) (bool, error) {
+
+	client := metric.connect(ctx)
+	defer metric.disconnect(ctx, client)
+	ctxMongo, cancel := context.WithTimeout(ctx, metric.timeOut())
+	metricsCollection := metric.getMetricsCollection(client)
+	_, err := metricsCollection.DeleteMany(ctxMongo, bson.D{primitive.E{Key: "feature", Value: feature}})
+	cancel()
 	if err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (metric *Metrics) connect() {
+func (metric *Metrics) connect(ctx context.Context) *mongo.Client {
 
 	conf := config.GetConfiguration()
 	clientOptions := options.Client().ApplyURI(conf.Database.Url)
@@ -136,26 +161,25 @@ func (metric *Metrics) connect() {
 		logs.GetLogs().WriteMessage("error", "unable to cerate monogo client", err)
 		os.Exit(2)
 	}
-	metrics.client = client
-	err = client.Connect(context.Background())
+
+	ctxMongo, cancel := context.WithTimeout(ctx, metric.timeOut())
+	err = client.Connect(ctxMongo)
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", "unable to connect monogo client", err)
 		os.Exit(2)
 	}
-	err = client.Ping(context.Background(), nil)
+	cancel()
+	err = client.Ping(ctxMongo, nil)
 	if err != nil {
 		logs.GetLogs().WriteMessage("error", "mongodb doesn't answer ping", err)
 		os.Exit(2)
 	}
-	//defer client.Disconnect(ctx)
-
-	database := client.Database(conf.Database.DatabaseName)
-	metricsCollection := database.Collection(conf.Database.Collections.Metrics)
-
-	metrics.metricsCollection = metricsCollection
-
+	cancel()
+	return client
 }
 
-func (metric *Metrics) disconnect() {
-	metric.client.Disconnect(context.Background())
+func (metric *Metrics) disconnect(ctx context.Context, client *mongo.Client) {
+	ctxMongo, cancel := context.WithTimeout(ctx, metric.timeOut())
+	client.Disconnect(ctxMongo)
+	cancel()
 }

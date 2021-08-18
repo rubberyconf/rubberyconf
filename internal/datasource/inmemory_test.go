@@ -11,7 +11,7 @@ import (
 	"github.com/rubberyconf/rubberyconf/internal/feature"
 )
 
-func TestDataSourceMongoDB_Creates(t *testing.T) {
+func TestDataSourceInMemory_Creates(t *testing.T) {
 
 	feDef := feature.FeatureDefinition{}
 	feDef.Name = "name"
@@ -32,7 +32,7 @@ func TestDataSourceMongoDB_Creates(t *testing.T) {
 		config.NewConfiguration(filepath.Join(path, "../../config/local.yml"))
 	}
 	ctx := context.TODO()
-	datasource := NewDataSourceMongoDB(ctx)
+	datasource := NewDataSourceInMemory(ctx)
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("feature: %s ", tt.feature)

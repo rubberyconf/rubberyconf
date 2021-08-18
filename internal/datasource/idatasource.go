@@ -1,7 +1,9 @@
 package datasource
 
 import (
+	"context"
 	"log"
+	"sync"
 
 	"github.com/rubberyconf/rubberyconf/internal/config"
 	"github.com/rubberyconf/rubberyconf/internal/feature"
@@ -14,9 +16,9 @@ type Feature struct {
 
 type IDataSource interface {
 	EnableFeature(aux map[string]string) (Feature, bool)
-	GetFeature(feature *Feature) (bool, error)
-	DeleteFeature(feature Feature) bool
-	CreateFeature(feature Feature) bool
+	GetFeature(ctx context.Context, feature *Feature) (bool, error)
+	DeleteFeature(ctx context.Context, feature Feature) bool
+	CreateFeature(ctx context.Context, feature Feature) bool
 	reviewDependencies()
 }
 
@@ -28,21 +30,29 @@ const (
 	keyFeature string = "feature"
 )
 
-func SelectSource() IDataSource {
+var (
+	dataSourceEnabled *IDataSource
+	onceDataSource    sync.Once
+)
 
-	conf := config.GetConfiguration()
-	var res IDataSource
-	typeSource := conf.Api.Source
-	if typeSource == GOGS {
-		res = NewDataSourceGogs()
-	} else if typeSource == INMEMORY {
-		res = NewDataSourceInMemory()
-	} else if typeSource == GITHUB {
-		res = NewDataSourceGithub()
-	} else {
-		log.Fatal("no data source selected")
-	}
-	res.reviewDependencies()
+func NewDataSourceSource(ctx context.Context) *IDataSource {
 
-	return res
+	onceDataSource.Do(func() {
+		conf := config.GetConfiguration()
+		var res *IDataSource
+		typeSource := conf.Api.Source
+		if typeSource == GOGS {
+			res = NewDataSourceGogs(ctx)
+		} else if typeSource == INMEMORY {
+			res = NewDataSourceInMemory(ctx)
+		} else if typeSource == GITHUB {
+			res = NewDataSourceGithub(ctx)
+		} else {
+			log.Fatal("no data source selected")
+		}
+		res.reviewDependencies()
+		dataSourceEnabled = res
+	})
+
+	return dataSourceEnabled
 }

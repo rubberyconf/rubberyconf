@@ -27,31 +27,31 @@ var routes = Routes{
 	Route{
 		"configuration",
 		"GET",
-		"/conf/{feature}",
+		"/conf/{feature:[a-zA-Z0-9_]}",
 		handlersConf.ConfigurationGET,
 	},
 	Route{
 		"configuration",
 		"POST",
-		"/conf/{feature}",
+		"/conf/{feature:[a-zA-Z0-9_]}",
 		handlersConf.ConfigurationPOST,
 	},
 	Route{
 		"configuration",
 		"DELETE",
-		"/conf/{feature}",
+		"/conf/{feature:[a-zA-Z0-9_]}",
 		handlersConf.ConfigurationDELETE,
 	},
 	Route{
 		"configuration",
 		"PATCH",
-		"/conf/{feature}",
+		"/conf/{feature:[a-zA-Z0-9_]}",
 		handlersConf.ConfigurationPATCH,
 	},
 	Route{
 		"feature",
 		"GET",
-		"/feature/{feature}",
+		"/feature/{feature:[a-zA-Z0-9_]}",
 		handlersFeature.FeatureGET,
 	},
 }

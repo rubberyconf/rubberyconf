@@ -19,6 +19,7 @@ type Config struct {
 		} `yaml:"collections"`
 		Url          string `yaml:"url" envconfig:"DB_URL"`
 		DatabaseName string `yaml:"databasename" envconfig:"DB_DATABASENAME"`
+		TimeOut      string `yaml:"timeout" envconfig:"DB_TIMEOUT"`
 	} `yaml:"database"`
 	Redis struct {
 		Username string `yaml:"user" envconfig:"REDIS_USERNAME"`
@@ -34,6 +35,7 @@ type Config struct {
 		Organization  string `yaml:"organization" envconfig:"GIT_ORGANIZATION"`
 		ApiToken      string `yaml:"apitoken" envconfig:"GIT_APITOKEN"`
 		BranchDefault string `yaml:"branchdefault" envconfig:"GIT_BRANCHDEFAULT"`
+		TimeOut       string `yaml:"timeout" envconfig:"GIT_TIMEOUT"`
 	} `yaml:"gitserver"`
 	Elastic struct {
 		Url  string `yaml:"url" envconfig:"ELASTIC_URL"`
