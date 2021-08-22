@@ -23,6 +23,7 @@ redis:
   user: ""
   pass: ""
   url: "127.0.0.1:6379"
+  timeout: "2s"
 
 
 gitserver:
@@ -39,4 +40,5 @@ elastic:
   logs:
     index: "rbtraces"
   url: "http://localhost:9200"
+  timeout: "2s"
 
