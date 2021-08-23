@@ -13,6 +13,7 @@ import (
 	"github.com/rubberyconf/rubberyconf/lib/core/service"
 	"github.com/rubberyconf/rubberyconf/lib/infrastructure/cache"
 	"github.com/rubberyconf/rubberyconf/lib/infrastructure/datasource"
+	"github.com/rubberyconf/rubberyconf/lib/infrastructure/loggers"
 	"github.com/rubberyconf/rubberyconf/lib/infrastructure/repositories"
 )
 
@@ -36,18 +37,30 @@ func loadConfiguration() *configuration.Config {
 	return conf
 }
 
+func loadLogs() {
+	conf := configuration.GetConfiguration()
+
+	for _, log := range conf.Api.Logs {
+		switch log {
+		case loggers.CONSOLE:
+			logs.GetLogs().AddLog(loggers.CONSOLE, loggers.NewConsoleLog())
+		case loggers.ELASTIC:
+			logs.GetLogs().AddLog(loggers.ELASTIC, loggers.NewElasticLog())
+		}
+	}
+
+}
+
 func main() {
 
 	loadConfiguration()
+	loadLogs()
 
 	repository := repositories.NewMetricsRepository()
 	datasource := datasource.NewDataSourceSource()
 	cache := cache.NewCache()
 
-	logs:= []{"",""}
-
 	service1 := service.NewServiceFeature(repository, datasource, cache)
-	service1.SetLogs(logs)
 
 	server := httpapi.NewHTTPServer(service1)
 

@@ -1,25 +1,25 @@
-package logs
+package loggers
 
 import (
 	"encoding/json"
 	"log"
-	"sync"
+
+	"github.com/rubberyconf/rubberyconf/lib/core/logs"
 )
 
 type ConsoleLog struct {
 }
 
-var (
-	consoleLogging *ConsoleLog
-	consoleLogOnce sync.Once
+const (
+	CONSOLE string = "Console"
 )
 
-func NewConsoleLog() *ConsoleLog {
+func NewConsoleLog() *logs.ILogs {
 
-	consoleLogOnce.Do(func() {
-		consoleLogging = new(ConsoleLog)
-	})
-	return consoleLogging
+	var llg logs.ILogs
+	consoleLogging := new(ConsoleLog)
+	llg = consoleLogging
+	return &llg
 }
 
 func (lg *ConsoleLog) WriteMessage(level string, message string, metainfo interface{}) {

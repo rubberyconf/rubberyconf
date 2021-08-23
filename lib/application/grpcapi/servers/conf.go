@@ -4,21 +4,21 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/rubberyconf/rubberyconf/grpcapi/grpcapipb"
-	"github.com/rubberyconf/rubberyconf/internal/feature"
-	"github.com/rubberyconf/rubberyconf/internal/service"
+	"github.com/rubberyconf/rubberyconf/lib/application/grpcapi/grpcapipb"
+	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
+	"github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type ConfServer struct {
+	service *input.IServiceFeature
 }
 
-func (*ConfServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
-	var logic service.Service
+func (me *ConfServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
 	name := request.FeatureName
 
 	vars := map[string]string{"feature": name}
-	result, content, err := logic.GetFeatureFull(ctx, vars)
+	result, content, err := me.service.GetFeatureFull(ctx, vars)
 
 	response := &grpcapipb.FeatureFullResponse{
 		Status:  grpcapipb.StatusType(result),
@@ -66,15 +66,14 @@ func mapperFrom(in *feature.FeatureDefinition) *grpcapipb.FeatureDefinition {
 	return result
 }
 
-func (*ConfServer) Create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureBasicResponse, error) {
-	var logic service.Service
+func (me *ConfServer) Create(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureBasicResponse, error) {
 	name := request.Name
 
 	vars := map[string]string{"feature": name}
 
 	ruberConf := mapperTo(request.Feature)
 
-	result, err := logic.CreateFeature(ctx, vars, *ruberConf)
+	result, err := me.service.CreateFeature(ctx, vars, *ruberConf)
 
 	response := &grpcapipb.FeatureBasicResponse{
 		Status: grpcapipb.StatusType(result),
@@ -82,31 +81,33 @@ func (*ConfServer) Create(ctx context.Context, request *grpcapipb.FeatureCreatio
 	return response, err
 }
 
-func (*ConfServer) Patch(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureBasicResponse, error) {
-	var logic service.Service
+func (me *ConfServer) Patch(ctx context.Context, request *grpcapipb.FeatureCreationRequest) (*grpcapipb.FeatureBasicResponse, error) {
 	name := request.Name
 
 	vars := map[string]string{"feature": name}
 
 	ruberConf := mapperTo(request.Feature)
 
-	result, err := logic.PatchFeature(ctx, vars, *ruberConf)
+	result, err := me.service.PatchFeature(ctx, vars, *ruberConf)
 
 	response := &grpcapipb.FeatureBasicResponse{
 		Status: grpcapipb.StatusType(result),
 	}
 	return response, err
 }
-func (*ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureBasicResponse, error) {
-	var logic service.Service
+func (me *ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureBasicResponse, error) {
 	name := request.FeatureName
 
 	vars := map[string]string{"feature": name}
 
-	result, err := logic.DeleteFeature(ctx, vars)
+	result, err := me.service.DeleteFeature(ctx, vars)
 
 	response := &grpcapipb.FeatureBasicResponse{
 		Status: grpcapipb.StatusType(result),
 	}
 	return response, err
+}
+
+func (me *ConfServer) SetService(srv *input.IServiceFeature) {
+	me.service = srv
 }

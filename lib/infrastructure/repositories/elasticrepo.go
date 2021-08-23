@@ -11,14 +11,11 @@ import (
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	config "github.com/rubberyconf/rubberyconf/lib/core/configuration"
-	irepository "github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 
 	"github.com/matishsiao/goInfo"
 )
 
 type ElasticLogRepository struct {
-	//es    *elasticsearch.Client
-	//index string
 }
 
 type elasticDocs struct {
@@ -29,14 +26,9 @@ type elasticDocs struct {
 	OsInfo    *goInfo.GoInfoObject
 }
 
-func NewElasticRepository() *irepository.ILogsRepository {
+func NewElasticRepository() *ElasticLogRepository {
 	aux := new(ElasticLogRepository)
-
-	var caster irepository.ILogsRepository
-
-	caster = aux
-
-	return &caster
+	return aux
 }
 
 func (metric *ElasticLogRepository) timeOut() time.Duration {
@@ -61,7 +53,6 @@ func (me *ElasticLogRepository) connect() *elasticsearch.Client {
 	if err != nil {
 		log.Fatalf("Error creating the client: %s", err)
 	}
-	//elasticLogging.index = conf.Elastic.Logs.Index
 	return client
 
 }

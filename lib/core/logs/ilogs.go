@@ -1,22 +1,16 @@
 package logs
 
 import (
-	"log"
-	"os"
 	"sync"
 
 	config "github.com/rubberyconf/rubberyconf/lib/core/configuration"
-	"github.com/rubberyconf/rubberyconf/lib/core/stringarr"
 )
 
-type iLogs interface {
+type ILogs interface {
 	WriteMessage(level string, message string, metainfo interface{})
 }
 
 const (
-	CONSOLE string = "Console"
-	ELASTIC string = "Elastic"
-
 	INFO    string = "info"
 	DEBUG   string = "debug"
 	ERROR   string = "error"
@@ -24,7 +18,7 @@ const (
 )
 
 type Logs struct {
-	logs map[string]iLogs
+	logs map[string]*ILogs
 }
 
 var (
@@ -35,19 +29,8 @@ var (
 func GetLogs() *Logs {
 
 	logsOnce.Do(func() {
-		conf := config.GetConfiguration()
-		reviewDependencies(conf)
 		allLogs = new(Logs)
-		allLogs.logs = make(map[string]iLogs)
-
-		for _, log := range conf.Api.Logs {
-			switch log {
-			case CONSOLE:
-				allLogs.logs[CONSOLE] = NewConsoleLog()
-			case ELASTIC:
-				allLogs.logs[ELASTIC] = NewElasticLog()
-			}
-		}
+		allLogs.logs = make(map[string]*ILogs)
 
 	})
 	return allLogs
@@ -55,23 +38,18 @@ func GetLogs() *Logs {
 
 func (logs *Logs) WriteMessage(level string, message string, metainfo interface{}) {
 
-	if checkLevel(level) {
+	if logs.checkLevel(level) {
 		for _, lg := range logs.logs {
-			lg.WriteMessage(level, message, metainfo)
+			(*lg).WriteMessage(level, message, metainfo)
 		}
 	}
 }
 
-func reviewDependencies(conf *config.Config) {
-
-	if stringarr.Include(conf.Api.Logs, ELASTIC) && conf.Elastic.Url == "" {
-		log.Fatalf("elastic server dependency enabled but not configured, check config yml file.")
-		os.Exit(2)
-	}
-
+func (logs *Logs) AddLog(key string, lg *ILogs) {
+	logs.logs[key] = lg
 }
 
-func checkLevel(level string) bool {
+func (logs *Logs) checkLevel(level string) bool {
 
 	conf := config.GetConfiguration()
 	levelThreshold := conf.Api.Options.LogLevel
