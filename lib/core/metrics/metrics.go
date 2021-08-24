@@ -2,45 +2,30 @@ package metrics
 
 import (
 	"context"
-	"sync"
 	"time"
+
+	"github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 )
 
-type MongoMetrics struct {
-	Feature   string
-	Counter   int64
-	UpdatedAt time.Time
-	ctx       context.Context
+func UpdateValue(me *output.Metrics) {
+
+	me.Counter += 1
+	me.UpdatedAt = time.Now()
 }
 
-type Metrics struct {
-	//store chan MongoMetrics
-}
+func Update(ctx context.Context, feature string, repo *output.IMetricsRepository) (bool, error) {
 
-var (
-	metrics     *Metrics
-	metricsOnce sync.Once
-)
+	mtrs, err := repo.Fetch(ctx, feature)
+	if err != nil {
+		return false, err
+	}
 
-func NewMetrics() *Metrics {
+	UpdateValue(mtrs)
 
-	metricsOnce.Do(func() {
-		metrics = new(Metrics)
-		//metrics.store = make(chan MongoMetrics)
-	})
-	return metrics
-}
-
-func (metricRegister *MongoMetrics) Update() {
-
-	metricRegister.Counter += 1
-	metricRegister.UpdatedAt = time.Now()
-}
-
-func (metric *Metrics) Update(ctx context.Context, feature string) (*MongoMetrics, error) {
-
-}
-
-func (metric *Metrics) Remove(ctx context.Context, feature string) (bool, error) {
+	res, err := repo.Store(ctx, mtrs)
+	if err != nil || !res {
+		return false, err
+	}
+	return true, nil
 
 }

@@ -1,12 +1,12 @@
 package metrics
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
 
-	"github.com/rubberyconf/rubberyconf/internal/config"
+	//config "github.com/rubberyconf/rubberyconf/lib/core/configuration"
+	"github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 )
 
 func TestUpdateMetricsRegister(t *testing.T) {
@@ -23,49 +23,15 @@ func TestUpdateMetricsRegister(t *testing.T) {
 	for _, tt := range tests {
 		testname := fmt.Sprintf("feature: %s, counter: %d, expectedCounter: %d", tt.feature, tt.counter, tt.expectedCounter)
 		t.Run(testname, func(t *testing.T) {
-			var metric MongoMetrics
+			var metric output.Metrics
 			metric.Feature = tt.feature
 			metric.Counter = tt.counter
 			metric.CreatedAt = tt.createdAt
 			metric.UpdatedAt = tt.updatedAt
-			metric.Update()
+			UpdateValue(&metric)
 			if metric.Counter != tt.expectedCounter {
 				t.Errorf("got %d, want %d", metric.Counter, tt.expectedCounter)
 			}
 		})
 	}
-}
-
-func TestUpdateMetrics(t *testing.T) {
-	var tests = []struct {
-		feature         string
-		expectedCounter int64
-	}{
-		{"feature1", 1},
-		{"feature1", 2},
-		{"feature2", 1},
-		{"feature1", 3},
-	}
-	config.NewConfiguration("../../config/local.yml")
-	metricsService := GetMetrics()
-	ctx := context.TODO()
-
-	for _, tt := range tests {
-		testname := fmt.Sprintf("feature: %s, expectedCounter: %d", tt.feature, tt.expectedCounter)
-		t.Run(testname, func(t *testing.T) {
-			res, err := metricsService.Update(ctx, tt.feature)
-			if err != nil {
-				t.Fatalf("error running the test %s", err)
-			} else {
-				if res.Counter != tt.expectedCounter {
-					t.Errorf("got %d, want %d", res.Counter, tt.expectedCounter)
-				}
-			}
-		})
-	}
-
-	for _, tt := range tests {
-		metricsService.Remove(ctx, tt.feature)
-	}
-
 }

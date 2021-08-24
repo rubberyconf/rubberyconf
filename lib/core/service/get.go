@@ -61,7 +61,7 @@ func (bb *ServiceFeature) getFeature(ctx context.Context, vars map[string]string
 		bb.updateCache(ctx, featureSelected)
 	}
 
-	go metrics.NewMetrics().Update(ctx, featureSelected.Key)
+	go metrics.Update(ctx, featureSelected.Key, bb.repository)
 
 	return Success, featureSelected, nil
 
