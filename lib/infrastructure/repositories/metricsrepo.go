@@ -52,14 +52,10 @@ func mapperFrom(from *MongoMetrics) *irepository.Metrics {
 
 }
 
-func NewMetricsRepository() *irepository.IMetricsRepository {
+func NewMetricsRepository() irepository.IMetricsRepository {
 	aux := new(MetricsRepository)
 
-	var caster irepository.IMetricsRepository
-
-	caster = aux
-
-	return &caster
+	return aux
 }
 
 func (metric *MetricsRepository) timeOut() time.Duration {

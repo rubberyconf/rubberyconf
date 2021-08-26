@@ -11,7 +11,7 @@ import (
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 )
 
-func ConfigurationPATCH(service *input.IServiceFeature) func(w http.ResponseWriter, r *http.Request) {
+func ConfigurationPATCH(service input.IServiceFeature) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
@@ -24,7 +24,7 @@ func ConfigurationPATCH(service *input.IServiceFeature) func(w http.ResponseWrit
 		ruberConf := feature.FeatureDefinition{}
 		ruberConf.LoadFromJsonBinary(b)
 
-		result, _ := service.PatchFeature(vars, ruberConf)
+		result, _ := service.PatchFeature(r.Context(), vars, ruberConf)
 
 		tools.ProcessHTTPAnswer(result, w)
 	}

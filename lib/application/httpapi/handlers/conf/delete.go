@@ -8,12 +8,12 @@ import (
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 )
 
-func ConfigurationDELETE(service *input.IServiceFeature) func(w http.ResponseWriter, r *http.Request) {
+func ConfigurationDELETE(service input.IServiceFeature) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
 
-		result, _ := service.DeleteFeature(vars)
+		result, _ := service.DeleteFeature(r.Context(), vars)
 
 		tools.ProcessHTTPAnswer(result, w)
 	}

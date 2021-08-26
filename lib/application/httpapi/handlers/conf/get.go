@@ -10,7 +10,7 @@ import (
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 )
 
-func ConfigurationGET(service *input.IServiceFeature) func(w http.ResponseWriter, r *http.Request) {
+func ConfigurationGET(service input.IServiceFeature) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
@@ -21,7 +21,7 @@ func ConfigurationGET(service *input.IServiceFeature) func(w http.ResponseWriter
 
 		tools.ProcessHTTPAnswer(result, w)
 
-		if result == service.Success {
+		if result == input.Success {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			bytes, err := json.Marshal(content)
 			if err != nil {

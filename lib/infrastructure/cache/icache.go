@@ -1,9 +1,8 @@
 package cache
 
 import (
-	"log"
-
 	config "github.com/rubberyconf/rubberyconf/lib/core/configuration"
+	"github.com/rubberyconf/rubberyconf/lib/core/logs"
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 )
 
@@ -13,7 +12,7 @@ const (
 	NONE   string = "None"
 )
 
-func NewCache() *output.ICacheStorage {
+func NewCache() output.ICacheStorage {
 
 	conf := config.GetConfiguration()
 	var res output.ICacheStorage
@@ -25,8 +24,8 @@ func NewCache() *output.ICacheStorage {
 	} else if typeStorage == NONE {
 		res = NewDataStorageSkip()
 	} else {
-		log.Fatal("no data storage selected")
+		logs.GetLogs().WriteMessage(logs.ERROR, "no data storage selected", nil)
 	}
 
-	return &res
+	return res
 }

@@ -54,7 +54,7 @@ func (logs *Logs) AddLog(key string, lg *ILogs) {
 func (logs *Logs) checkLevel(level LogTypeMessage) bool {
 
 	conf := config.GetConfiguration()
-	levelThreshold := conf.Api.Options.LogLevel
+	levelThreshold := LogTypeMessage(conf.Api.Options.LogLevel)
 	switch levelThreshold {
 	case DEBUG:
 		return true

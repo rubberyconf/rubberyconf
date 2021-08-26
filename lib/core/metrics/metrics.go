@@ -13,7 +13,7 @@ func UpdateValue(me *output.Metrics) {
 	me.UpdatedAt = time.Now()
 }
 
-func Update(ctx context.Context, feature string, repo *output.IMetricsRepository) (bool, error) {
+func Update(ctx context.Context, feature string, repo output.IMetricsRepository) (bool, error) {
 
 	mtrs, err := repo.Fetch(ctx, feature)
 	if err != nil {

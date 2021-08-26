@@ -4,29 +4,31 @@ import (
 	"context"
 
 	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
+	inputPort "github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 )
 
-func (bb *ServiceFeature) CreateFeature(ctx context.Context, vars map[string]string, ruberConf feature.FeatureDefinition) (int, error) {
-
-	//_, cacheValue, source, featureSelected, result := preRequisites(ctx, vars)
+func (bb *ServiceFeature) CreateFeature(
+	ctx context.Context,
+	vars map[string]string,
+	ruberConf feature.FeatureDefinition) (inputPort.ServiceResult, error) {
 
 	featureSelected, result := bb.datasource.EnableFeature(vars)
 
 	if !result {
-		return NotResult, nil
+		return inputPort.NotResult, nil
 	}
 
 	featureSelected.Value = &ruberConf
 
 	res := bb.updateCache(ctx, featureSelected)
 	if !res {
-		return Unknown, nil
+		return inputPort.Unknown, nil
 	}
 
 	res = bb.datasource.CreateFeature(ctx, featureSelected)
 	if !res {
-		return Unknown, nil
+		return inputPort.Unknown, nil
 	}
-	return Success, nil
+	return inputPort.Success, nil
 
 }

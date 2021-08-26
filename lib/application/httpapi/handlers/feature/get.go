@@ -11,7 +11,7 @@ import (
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 )
 
-func FeatureGET(service *input.IServiceFeature) func(w http.ResponseWriter, r *http.Request) {
+func FeatureGET(service input.IServiceFeature) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		vars := mux.Vars(r)
@@ -22,7 +22,7 @@ func FeatureGET(service *input.IServiceFeature) func(w http.ResponseWriter, r *h
 		}
 		tools.ProcessHTTPAnswer(result, w)
 
-		if result == service.Success {
+		if result == input.Success {
 			if typeContent == "json" {
 				w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 				bytes, err := json.Marshal(content)

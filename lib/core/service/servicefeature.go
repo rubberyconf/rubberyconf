@@ -10,31 +10,22 @@ import (
 )
 
 type ServiceFeature struct {
-	repository *output.IMetricsRepository
-	datasource *output.IDataSource
-	cache      *output.ICacheStorage
+	repository output.IMetricsRepository
+	datasource output.IDataSource
+	cache      output.ICacheStorage
 }
 
-const (
-	NotResult = iota
-	NoContent = iota
-	Unknown   = iota
-	Success   = iota
-)
-
 func NewServiceFeature(
-	repository *output.IMetricsRepository,
-	datasource *output.IDataSource,
-	cache *output.ICacheStorage) *inputPort.IServiceFeature {
+	repository output.IMetricsRepository,
+	datasource output.IDataSource,
+	cache output.ICacheStorage) inputPort.IServiceFeature {
 
 	service := new(ServiceFeature)
 	service.repository = repository
 	service.datasource = datasource
 	service.cache = cache
 
-	var res inputPort.IServiceFeature
-	res = service
-	return &res
+	return service
 }
 
 /*
@@ -56,7 +47,7 @@ func (service *ServiceFeature) updateCache(ctx context.Context, featureSelected 
 		timeInText = featureSelected.Value.Default.TTL
 	}
 	u, _ := time.ParseDuration(timeInText)
-	res, _ := service.cache.SetValue(ctx, featureSelected.Key, featureSelected.Value, time.Duration(u.Seconds()))
+	res, _ := service.cache.SetValue(ctx, featureSelected, time.Duration(u.Seconds()))
 	if !res {
 		return false
 	}

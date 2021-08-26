@@ -10,11 +10,11 @@ import (
 )
 
 type HTTPServer struct {
-	service *input.IServiceFeature
+	service input.IServiceFeature
 	router  http.Handler
 }
 
-func NewHTTPServer(service *input.IServiceFeature) *HTTPServer {
+func NewHTTPServer(service input.IServiceFeature) *HTTPServer {
 	res := new(HTTPServer)
 	res.service = service
 	res.router = res.newRouter()

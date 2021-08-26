@@ -7,15 +7,6 @@ import (
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 )
 
-/*
-type IDataSource interface {
-	EnableFeature(aux map[string]string) (output.FeatureKeyValue, bool)
-	GetFeature(ctx context.Context, feature *output.FeatureKeyValue) (bool, error)
-	DeleteFeature(ctx context.Context, feature output.FeatureKeyValue) bool
-	CreateFeature(ctx context.Context, feature output.FeatureKeyValue) bool
-	reviewDependencies()
-}*/
-
 const (
 	GOGS       string = "Gogs"
 	MONGODB    string = "Mongodb"
@@ -24,7 +15,7 @@ const (
 	keyFeature string = "feature"
 )
 
-func NewDataSourceSource() *output.IDataSource {
+func NewDataSourceSource() output.IDataSource {
 
 	conf := config.GetConfiguration()
 	var res output.IDataSource
@@ -39,7 +30,6 @@ func NewDataSourceSource() *output.IDataSource {
 		log.Fatal("no data source selected")
 	}
 	res.ReviewDependencies()
-	dataSourceEnabled := &res
 
-	return dataSourceEnabled
+	return res
 }

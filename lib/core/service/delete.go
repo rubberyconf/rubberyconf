@@ -1,15 +1,19 @@
 package service
 
-import "context"
+import (
+	"context"
 
-func (bb *ServiceFeature) DeleteFeature(ctx context.Context, vars map[string]string) (int, error) {
+	inputPort "github.com/rubberyconf/rubberyconf/lib/core/ports/input"
+)
+
+func (bb *ServiceFeature) DeleteFeature(ctx context.Context, vars map[string]string) (inputPort.ServiceResult, error) {
 
 	//_, cacheValue, source, featureSelected, result := preRequisites(ctx, vars)
 
 	//if !result {
 	//	return NotResult, nil
 	//}
-	featureSelected := bb.datasource.EnableFeature(vars)
+	featureSelected, _ := bb.datasource.EnableFeature(vars)
 	//res, err :=
 	bb.cache.DeleteValue(ctx, featureSelected.Key)
 	//if res {
@@ -17,9 +21,9 @@ func (bb *ServiceFeature) DeleteFeature(ctx context.Context, vars map[string]str
 	//}
 	res := bb.datasource.DeleteFeature(ctx, featureSelected)
 	if res {
-		return Unknown, nil
+		return inputPort.Unknown, nil
 	}
 
-	return Success, nil
+	return inputPort.Success, nil
 
 }

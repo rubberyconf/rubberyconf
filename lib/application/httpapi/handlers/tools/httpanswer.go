@@ -3,23 +3,23 @@ package tools
 import (
 	"net/http"
 
-	"github.com/rubberyconf/rubberyconf/lib/core/service"
+	"github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 )
 
-func ProcessHTTPAnswer(result int, w http.ResponseWriter) {
+func ProcessHTTPAnswer(result input.ServiceResult, w http.ResponseWriter) {
 
 	w.Header().Set("Content-Type", "application/text; charset=UTF-8") //by default
 	switch result {
-	case service.NotResult:
+	case input.NotResult:
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	case service.NoContent:
+	case input.NoContent:
 		w.WriteHeader(http.StatusNoContent)
 		return
-	case service.Unknown:
+	case input.Unknown:
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	case service.Success:
+	case input.Success:
 		w.WriteHeader(http.StatusOK)
 		return
 	}

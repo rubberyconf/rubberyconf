@@ -4,12 +4,15 @@ import (
 	"context"
 
 	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
+	inputPort "github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 
 	"github.com/imdario/mergo"
 )
 
-func (bb *ServiceFeature) PatchFeature(ctx context.Context, vars map[string]string, ruberConf feature.FeatureDefinition) (int, error) {
+func (bb *ServiceFeature) PatchFeature(
+	ctx context.Context, vars map[string]string,
+	ruberConf feature.FeatureDefinition) (inputPort.ServiceResult, error) {
 
 	//_, cacheValue, source, featureSelected, result := preRequisites(ctx, vars)
 
@@ -19,26 +22,26 @@ func (bb *ServiceFeature) PatchFeature(ctx context.Context, vars map[string]stri
 
 	status, featureDefOriginal, err := bb.GetFeatureFull(ctx, vars)
 
-	if status != Success {
-		return NoContent, err
+	if status != inputPort.Success {
+		return inputPort.NoContent, err
 	}
 
 	if err := mergo.Merge(featureDefOriginal, ruberConf, mergo.WithOverride); err != nil {
-		return Unknown, err
+		return inputPort.Unknown, err
 	}
 	var featureSelected output.FeatureKeyValue
 	featureSelected.Value = featureDefOriginal
 
 	res := bb.updateCache(ctx, featureSelected)
 	if !res {
-		return Unknown, nil
+		return inputPort.Unknown, nil
 	}
 
 	bb.datasource.DeleteFeature(ctx, featureSelected)
 	res = bb.datasource.CreateFeature(ctx, featureSelected)
 	if !res {
-		return Unknown, nil
+		return inputPort.Unknown, nil
 	}
-	return Success, nil
+	return inputPort.Success, nil
 
 }
