@@ -96,7 +96,7 @@ func (metric *MetricsRepository) _fetch(ctx context.Context, client *mongo.Clien
 	if err == mongo.ErrNoDocuments {
 		newdocument = true
 	} else if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb doesn't asnwered properly when running FindOne feature %s", feature), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("mongodb doesn't asnwered properly when running FindOne feature %s", feature), err)
 	}
 	cancel()
 
@@ -111,7 +111,7 @@ func (metric *MetricsRepository) _fetch(ctx context.Context, client *mongo.Clien
 		ctxMongo, cancel = context.WithTimeout(ctx, metric.timeOut())
 		_, err := metricsCollection.InsertOne(ctxMongo, newDoc)
 		if err != nil {
-			logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb didn't create a new metric document for feature: %s", feature), err)
+			logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("mongodb didn't create a new metric document for feature: %s", feature), err)
 			cancel()
 			return nil, err
 		}
@@ -186,20 +186,20 @@ func (metric *MetricsRepository) connect(ctx context.Context) *mongo.Client {
 	clientOptions := options.Client().ApplyURI(conf.Database.Url)
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "unable to cerate monogo client", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "unable to cerate monogo client", err)
 		os.Exit(2)
 	}
 
 	ctxMongo, cancel := context.WithTimeout(ctx, metric.timeOut())
 	err = client.Connect(ctxMongo)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "unable to connect monogo client", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "unable to connect monogo client", err)
 		os.Exit(2)
 	}
 	cancel()
 	err = client.Ping(ctxMongo, nil)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "mongodb doesn't answer ping", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "mongodb doesn't answer ping", err)
 		os.Exit(2)
 	}
 	cancel()

@@ -7,14 +7,16 @@ import (
 )
 
 type ILogs interface {
-	WriteMessage(level string, message string, metainfo interface{})
+	WriteMessage(level LogTypeMessage, message string, metainfo interface{})
 }
 
+type LogTypeMessage string
+
 const (
-	INFO    string = "info"
-	DEBUG   string = "debug"
-	ERROR   string = "error"
-	WARNING string = "warning"
+	INFO    LogTypeMessage = "info"
+	DEBUG   LogTypeMessage = "debug"
+	ERROR   LogTypeMessage = "error"
+	WARNING LogTypeMessage = "warning"
 )
 
 type Logs struct {
@@ -36,7 +38,7 @@ func GetLogs() *Logs {
 	return allLogs
 }
 
-func (logs *Logs) WriteMessage(level string, message string, metainfo interface{}) {
+func (logs *Logs) WriteMessage(level LogTypeMessage, message string, metainfo interface{}) {
 
 	if logs.checkLevel(level) {
 		for _, lg := range logs.logs {
@@ -49,7 +51,7 @@ func (logs *Logs) AddLog(key string, lg *ILogs) {
 	logs.logs[key] = lg
 }
 
-func (logs *Logs) checkLevel(level string) bool {
+func (logs *Logs) checkLevel(level LogTypeMessage) bool {
 
 	conf := config.GetConfiguration()
 	levelThreshold := conf.Api.Options.LogLevel

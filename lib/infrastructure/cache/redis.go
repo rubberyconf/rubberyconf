@@ -38,7 +38,7 @@ func (aux *RedisCache) connect() *redis.Client {
 func (aux *RedisCache) disconnect(client *redis.Client) {
 	err := client.Close()
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "error closing redis client", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "error closing redis client", err)
 	}
 
 }
@@ -60,7 +60,7 @@ func (aux *RedisCache) GetValue(ctx context.Context, key string) (*feature.Featu
 		return nil, false, nil
 	}
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("error geting value from redis key: %s", key), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("error geting value from redis key: %s", key), err)
 		return nil, false, err
 	}
 	var feat *feature.FeatureDefinition
@@ -85,7 +85,7 @@ func (aux *RedisCache) SetValue(ctx context.Context, feature output.FeatureKeyVa
 	err = rbd.Set(ctxRedis, feature.Key, svalue, expiration).Err()
 	cancel()
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("error seting value to redis key: %s", feature.Key), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("error seting value to redis key: %s", feature.Key), err)
 		return false, err
 	} else {
 		return true, nil
@@ -100,7 +100,7 @@ func (aux *RedisCache) DeleteValue(ctx context.Context, key string) (bool, error
 	err := rbd.Del(ctxRedis, key).Err()
 	cancel()
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("error seting value to redis key: %s", key), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("error seting value to redis key: %s", key), err)
 		return false, err
 	} else {
 		return true, nil

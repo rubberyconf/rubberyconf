@@ -34,11 +34,11 @@ func reviewDependencies() {
 	conf := config.GetConfiguration()
 	if conf.Api.Source == GOGS || conf.Api.Source == GITHUB {
 		if conf.GitServer.BranchDefault == "" {
-			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not default branch configured, check config yml file.", nil)
+			logs.GetLogs().WriteMessage(logs.ERROR, "git server dependency enabled but not default branch configured, check config yml file.", nil)
 			os.Exit(2)
 		}
 		if conf.GitServer.Repo == "" {
-			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not default branch configured, check config yml file.", nil)
+			logs.GetLogs().WriteMessage(logs.ERROR, "git server dependency enabled but not default branch configured, check config yml file.", nil)
 			os.Exit(2)
 		}
 	}

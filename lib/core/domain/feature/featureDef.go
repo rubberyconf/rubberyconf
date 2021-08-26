@@ -58,7 +58,7 @@ func (conf *FeatureDefinition) LoadFromString(text string) error {
 
 	err := yaml.Unmarshal([]byte(text), &conf)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "error unmarshalling yaml content to featureDefinition", nil)
+		logs.GetLogs().WriteMessage(logs.ERROR, "error unmarshalling yaml content to featureDefinition", nil)
 		return err
 	}
 	return nil
@@ -67,7 +67,7 @@ func (conf *FeatureDefinition) ToString() (string, error) {
 
 	b, err := yaml.Marshal(conf)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "error marshalling yaml content to featureDefinition", nil)
+		logs.GetLogs().WriteMessage(logs.ERROR, "error marshalling yaml content to featureDefinition", nil)
 		return "", err
 	}
 	sb := string(b)
@@ -90,7 +90,7 @@ func (conf *FeatureDefinition) GetFinalValue(vars map[string]string) (interface{
 	case "json":
 		b, err := json.MarshalIndent(data, "", "   ")
 		if err != nil {
-			logs.GetLogs().WriteMessage("error", "error marshalling content of featureDefinition to json", err)
+			logs.GetLogs().WriteMessage(logs.ERROR, "error marshalling content of featureDefinition to json", err)
 			return nil, err
 		}
 		afterCast = string(b)
@@ -98,7 +98,7 @@ func (conf *FeatureDefinition) GetFinalValue(vars map[string]string) (interface{
 		afterCast = data.(int)
 	}
 
-	logs.GetLogs().WriteMessage("info", fmt.Sprintf("configuration applied: %s, matches: %v ", confId, matches), nil)
+	logs.GetLogs().WriteMessage(logs.INFO, fmt.Sprintf("configuration applied: %s, matches: %v ", confId, matches), nil)
 
 	return afterCast, nil
 }

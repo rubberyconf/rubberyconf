@@ -22,6 +22,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/klauspost/compress v1.13.2 // indirect
 	github.com/matishsiao/goInfo v0.0.0-20200404012835-b5f882ee2288
+	github.com/matthewmcnew/archtest v0.0.0-20191104172020-f1b53a45c22d
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/rs/cors v1.8.0

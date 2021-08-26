@@ -22,7 +22,7 @@ func NewConsoleLog() *logs.ILogs {
 	return &llg
 }
 
-func (lg *ConsoleLog) WriteMessage(level string, message string, metainfo interface{}) {
+func (lg *ConsoleLog) WriteMessage(level logs.LogTypeMessage, message string, metainfo interface{}) {
 	if metainfo == nil {
 		log.Printf("%s - %s", level, message)
 	} else {

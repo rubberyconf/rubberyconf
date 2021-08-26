@@ -25,11 +25,11 @@ func (me *HTTPServer) Start() {
 
 	conf := config.GetConfiguration()
 
-	logs.GetLogs().WriteMessage("info", fmt.Sprintf("rubberyconf api started at port: %s", conf.Api.Port), nil)
+	logs.GetLogs().WriteMessage(logs.INFO, fmt.Sprintf("rubberyconf api started at port: %s", conf.Api.Port), nil)
 	address := ":" + conf.Api.Port
 	err := http.ListenAndServe(address, me.router)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("rubberyconf api error at port: %s", conf.Api.Port), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("rubberyconf api error at port: %s", conf.Api.Port), err)
 	}
 
 }

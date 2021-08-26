@@ -44,7 +44,7 @@ func (source *DataSourceGogs) GetFeature(ctx context.Context, feat output.Featur
 
 	req, err := http.NewRequest("GET", finalURL, nil)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("imossible reach this host: %s", finalURL), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("imossible reach this host: %s", finalURL), err)
 		feat.Value = nil
 		return false, err
 	}
@@ -93,7 +93,7 @@ func (source *DataSourceGogs) ReviewDependencies() {
 	conf := config.GetConfiguration()
 	if conf.Api.Source == GOGS {
 		if conf.GitServer.Url == "" {
-			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not url configured, check config yml file.", nil)
+			logs.GetLogs().WriteMessage(logs.ERROR, "git server dependency enabled but not url configured, check config yml file.", nil)
 			os.Exit(2)
 		}
 	}

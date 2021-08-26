@@ -24,8 +24,8 @@ func NewElasticLog() *logs.ILogs {
 	return &llg
 }
 
-func (lg *ElasticLog) WriteMessage(level string, message string, metainfo interface{}) {
-	lg.repository.WriteMessage(context.Background(), level, message, metainfo)
+func (lg *ElasticLog) WriteMessage(level logs.LogTypeMessage, message string, metainfo interface{}) {
+	lg.repository.WriteMessage(context.Background(), string(level), message, metainfo)
 }
 
 /*

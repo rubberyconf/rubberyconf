@@ -46,13 +46,13 @@ func (source *DataSourceGithub) timeOut() time.Duration {
 }
 func (source *DataSourceGithub) checkErrors(err error) bool {
 	if _, ok := err.(*github.RateLimitError); ok {
-		logs.GetLogs().WriteMessage("error", "error getting access to github, rate limiting reached", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "error getting access to github, rate limiting reached", err)
 		return true
 	} else if _, ok := err.(*github.AcceptedError); ok {
-		logs.GetLogs().WriteMessage("error", "error on github side (scheduled), check api token", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "error on github side (scheduled), check api token", err)
 		return true
 	} else if err != nil {
-		logs.GetLogs().WriteMessage("error", "error getting access to github, check api token", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "error getting access to github, check api token", err)
 		return true
 	}
 	return false
@@ -99,7 +99,7 @@ func (source *DataSourceGithub) CreateFeature(ctx context.Context, feature outpu
 	//fileContent := []byte("This is the content of my file\nand the 2nd line of it")
 	out, err := yaml.Marshal(feature.Value)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "error marshaling yaml", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "error marshaling yaml", err)
 		return false
 	}
 
@@ -123,7 +123,7 @@ func (source *DataSourceGithub) CreateFeature(ctx context.Context, feature outpu
 	client := source.connect(ctxGitHub)
 	_, _, err = client.Repositories.CreateFile(ctxGitHub, conf.GitServer.Organization, conf.GitServer.Repo, fileName, opts)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "impossible create feature in github", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "impossible create feature in github", err)
 		cancel()
 		return false
 	}
@@ -140,19 +140,19 @@ func (source *DataSourceGithub) ReviewDependencies() {
 	conf := config.GetConfiguration()
 	if conf.Api.Source == GOGS {
 		if conf.GitServer.ApiToken == "" {
-			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not apitoken configured, check config yml file.", nil)
+			logs.GetLogs().WriteMessage(logs.ERROR, "git server dependency enabled but not apitoken configured, check config yml file.", nil)
 			os.Exit(2)
 		}
 		if conf.GitServer.Username == "" {
-			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not username configured, check config yml file.", nil)
+			logs.GetLogs().WriteMessage(logs.ERROR, "git server dependency enabled but not username configured, check config yml file.", nil)
 			os.Exit(2)
 		}
 		if conf.GitServer.Email == "" {
-			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not email configured, check config yml file.", nil)
+			logs.GetLogs().WriteMessage(logs.ERROR, "git server dependency enabled but not email configured, check config yml file.", nil)
 			os.Exit(2)
 		}
 		if conf.GitServer.Organization == "" {
-			logs.GetLogs().WriteMessage("error", "git server dependency enabled but not email configured, check config yml file.", nil)
+			logs.GetLogs().WriteMessage(logs.ERROR, "git server dependency enabled but not email configured, check config yml file.", nil)
 			os.Exit(2)
 		}
 	}

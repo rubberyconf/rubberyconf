@@ -76,7 +76,7 @@ func (source *DataSourceMongoDB) GetFeature(ctx context.Context, feature output.
 		cancel()
 		return false, nil
 	} else if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb doesn't asnwered properly when running FindOne feature %s", feature.Key), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("mongodb doesn't asnwered properly when running FindOne feature %s", feature.Key), err)
 		cancel()
 		return false, err
 	}
@@ -98,7 +98,7 @@ func (source *DataSourceMongoDB) DeleteFeature(ctx context.Context, feature outp
 	_, err := featuresCollection.DeleteMany(ctxMongo, bson.D{primitive.E{Key: FEATUREKEY, Value: feature.Key}})
 	cancel()
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb didn't delete feature %s", feature.Key), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("mongodb didn't delete feature %s", feature.Key), err)
 		return false
 	}
 	return true
@@ -123,7 +123,7 @@ func (source *DataSourceMongoDB) CreateFeature(ctx context.Context, feature outp
 	_, err := featuresCollection.InsertOne(ctxMongo, newDoc)
 	cancel()
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", fmt.Sprintf("mongodb didn't create a new feature document for feature %s", feature.Key), err)
+		logs.GetLogs().WriteMessage(logs.ERROR, fmt.Sprintf("mongodb didn't create a new feature document for feature %s", feature.Key), err)
 		return false
 	}
 	return true
@@ -136,7 +136,7 @@ func (source *DataSourceMongoDB) EnableFeature(keys map[string]string) (output.F
 func (source *DataSourceMongoDB) ReviewDependencies(conf *config.Config) {
 	if conf.Api.Source == MONGODB &&
 		conf.Database.Url == "" {
-		logs.GetLogs().WriteMessage("error", "database mongodb server dependency enabled but not configured, check config yml file.", nil)
+		logs.GetLogs().WriteMessage(logs.ERROR, "database mongodb server dependency enabled but not configured, check config yml file.", nil)
 		os.Exit(2)
 	}
 }
@@ -148,18 +148,18 @@ func (source *DataSourceMongoDB) connect(ctx context.Context) *mongo.Client {
 	client, err := mongo.NewClient(clientOptions)
 	ctxMongo, cancel := context.WithTimeout(ctx, source.timeOut())
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "unable to cerate monogo client", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "unable to cerate monogo client", err)
 		os.Exit(2)
 	}
 	//ctx, _ := context.WithTimeout(ctx, 10*time.Second)
 	err = client.Connect(ctxMongo)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "unable to connect monogo client", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "unable to connect monogo client", err)
 		os.Exit(2)
 	}
 	err = client.Ping(ctxMongo, nil)
 	if err != nil {
-		logs.GetLogs().WriteMessage("error", "mongodb doesn't answer ping", err)
+		logs.GetLogs().WriteMessage(logs.ERROR, "mongodb doesn't answer ping", err)
 		os.Exit(2)
 	}
 	//defer client.Disconnect(ctx)

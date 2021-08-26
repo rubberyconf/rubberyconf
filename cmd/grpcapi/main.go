@@ -15,7 +15,7 @@ import (
 	"github.com/rubberyconf/rubberyconf/lib/core/service"
 	"github.com/rubberyconf/rubberyconf/lib/infrastructure/cache"
 	"github.com/rubberyconf/rubberyconf/lib/infrastructure/datasource"
-	"github.com/rubberyconf/rubberyconf/lib/infrastructure/loggers"
+	"github.com/rubberyconf/rubberyconf/lib/infrastructure/observability/loggers"
 	"github.com/rubberyconf/rubberyconf/lib/infrastructure/repositories"
 
 	"google.golang.org/grpc"
