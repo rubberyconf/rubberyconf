@@ -20,7 +20,7 @@ const (
 )
 
 type Logs struct {
-	logs map[string]*ILogs
+	logs map[string]ILogs
 }
 
 var (
@@ -32,7 +32,7 @@ func GetLogs() *Logs {
 
 	logsOnce.Do(func() {
 		allLogs = new(Logs)
-		allLogs.logs = make(map[string]*ILogs)
+		allLogs.logs = make(map[string]ILogs)
 
 	})
 	return allLogs
@@ -42,12 +42,12 @@ func (logs *Logs) WriteMessage(level LogTypeMessage, message string, metainfo in
 
 	if logs.checkLevel(level) {
 		for _, lg := range logs.logs {
-			(*lg).WriteMessage(level, message, metainfo)
+			lg.WriteMessage(level, message, metainfo)
 		}
 	}
 }
 
-func (logs *Logs) AddLog(key string, lg *ILogs) {
+func (logs *Logs) AddLog(key string, lg ILogs) {
 	logs.logs[key] = lg
 }
 

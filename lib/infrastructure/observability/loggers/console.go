@@ -14,12 +14,10 @@ const (
 	CONSOLE string = "Console"
 )
 
-func NewConsoleLog() *logs.ILogs {
+func NewConsoleLog() logs.ILogs {
 
-	var llg logs.ILogs
 	consoleLogging := new(ConsoleLog)
-	llg = consoleLogging
-	return &llg
+	return consoleLogging
 }
 
 func (lg *ConsoleLog) WriteMessage(level logs.LogTypeMessage, message string, metainfo interface{}) {

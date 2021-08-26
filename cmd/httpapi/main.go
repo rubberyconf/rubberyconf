@@ -32,13 +32,6 @@ func loadConfiguration() *configuration.Config {
 	pathToConfigFile := filepath.Join(path, fmt.Sprintf("../../config/%s.yml", environment))
 
 	conf := configuration.NewConfiguration(pathToConfigFile)
-	b, _ := json.MarshalIndent(conf, "", "   ")
-	logs.GetLogs().WriteMessage("debug", fmt.Sprintf("Configuration loaded:\n%s\nEnvironment: %s ", string(b), environment), nil)
-	return conf
-}
-
-func loadLogs() {
-	conf := configuration.GetConfiguration()
 
 	for _, log := range conf.Api.Logs {
 		switch log {
@@ -49,12 +42,14 @@ func loadLogs() {
 		}
 	}
 
+	b, _ := json.MarshalIndent(conf, "", "   ")
+	logs.GetLogs().WriteMessage(logs.INFO, fmt.Sprintf("Configuration loaded:\n%s\nEnvironment: %s ", string(b), environment), nil)
+	return conf
 }
 
 func main() {
 
 	loadConfiguration()
-	loadLogs()
 
 	repository := repositories.NewMetricsRepository()
 	datasource := datasource.NewDataSourceSource()

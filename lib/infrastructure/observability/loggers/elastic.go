@@ -15,13 +15,11 @@ const (
 	ELASTIC string = "Elastic"
 )
 
-func NewElasticLog() *logs.ILogs {
+func NewElasticLog() logs.ILogs {
 
-	var llg logs.ILogs
 	consoleLogging := new(ElasticLog)
 	consoleLogging.repository = repositories.NewElasticRepository()
-	llg = consoleLogging
-	return &llg
+	return consoleLogging
 }
 
 func (lg *ElasticLog) WriteMessage(level logs.LogTypeMessage, message string, metainfo interface{}) {

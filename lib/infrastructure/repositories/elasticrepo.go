@@ -97,8 +97,12 @@ func (me *ElasticLogRepository) WriteMessage(ctx context.Context, level string, 
 	}
 	ctxElastic, cancel := context.WithTimeout(ctx, me.timeOut())
 	res, err := req.Do(ctxElastic, client)
-	if err != nil && res.StatusCode == 201 {
-		log.Fatalf("Error getting response from Elastic error: %v", err)
+	if err != nil {
+		if res != nil && res.StatusCode != 201 {
+			log.Fatalf("Error getting response from Elastic status code: %d error: %v", res.StatusCode, err)
+		} else {
+			log.Fatalf("Error reaching Elastic: %v", err)
+		}
 		cancel()
 		return false, err
 	}
