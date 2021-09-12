@@ -55,9 +55,9 @@ func main() {
 	datasource := datasource.NewDataSourceSource()
 	cache := cache.NewCache()
 
-	service1 := service.NewServiceFeature(repository, datasource, cache)
+	srvFeatures := service.NewServiceFeature(repository, datasource, cache)
 
-	server := httpapi.NewHTTPServer(service1)
+	server := httpapi.NewHTTPServer(srvFeatures)
 
 	server.Start()
 

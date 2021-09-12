@@ -192,7 +192,6 @@ func (metric *MetricsRepository) connect(ctx context.Context) *mongo.Client {
 		logs.GetLogs().WriteMessage(logs.ERROR, "unable to connect monogo client", err)
 		os.Exit(2)
 	}
-	cancel()
 	err = client.Ping(ctxMongo, nil)
 	if err != nil {
 		logs.GetLogs().WriteMessage(logs.ERROR, "mongodb doesn't answer ping", err)

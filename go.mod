@@ -9,6 +9,7 @@ require (
 	github.com/containerd/containerd v1.5.5 // indirect
 	github.com/cucumber/gherkin-go/v9 v9.2.0 // indirect
 	github.com/cucumber/godog v0.11.0 // indirect
+	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/elastic/go-elasticsearch/v7 v7.13.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v8 v8.11.2

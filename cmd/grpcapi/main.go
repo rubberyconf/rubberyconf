@@ -37,12 +37,14 @@ func loadConfiguration() *configuration.Config {
 
 	conf := configuration.NewConfiguration(pathToConfigFile)
 	b, _ := json.MarshalIndent(conf, "", "   ")
+
+	loadLogs(conf)
+
 	logs.GetLogs().WriteMessage("debug", fmt.Sprintf("Configuration loaded:\n%s\nEnvironment: %s ", string(b), environment), nil)
 	return conf
 }
 
-func loadLogs() {
-	conf := configuration.GetConfiguration()
+func loadLogs(conf *configuration.Config) {
 
 	for _, log := range conf.Api.Logs {
 		switch log {
@@ -58,7 +60,6 @@ func loadLogs() {
 func main() {
 
 	conf := loadConfiguration()
-	loadLogs()
 
 	repository := repositories.NewMetricsRepository()
 	datasource := datasource.NewDataSourceSource()

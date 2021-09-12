@@ -11,7 +11,7 @@ import (
 )
 
 type ConfServer struct {
-	service *input.IServiceFeature
+	service input.IServiceFeature
 }
 
 func (me *ConfServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureFullResponse, error) {
@@ -108,6 +108,6 @@ func (me *ConfServer) Delete(ctx context.Context, request *grpcapipb.FeatureIdRe
 	return response, err
 }
 
-func (me *ConfServer) SetService(srv *input.IServiceFeature) {
+func (me *ConfServer) SetService(srv input.IServiceFeature) {
 	me.service = srv
 }

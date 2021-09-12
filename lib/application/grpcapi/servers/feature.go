@@ -10,7 +10,7 @@ import (
 )
 
 type FeatureServer struct {
-	service *input.IServiceFeature
+	service input.IServiceFeature
 }
 
 func (me *FeatureServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRequest) (*grpcapipb.FeatureShortResponse, error) {
@@ -38,6 +38,6 @@ func (me *FeatureServer) Get(ctx context.Context, request *grpcapipb.FeatureIdRe
 	return response, err
 }
 
-func (me *FeatureServer) SetService(srv *input.IServiceFeature) {
+func (me *FeatureServer) SetService(srv input.IServiceFeature) {
 	me.service = srv
 }
