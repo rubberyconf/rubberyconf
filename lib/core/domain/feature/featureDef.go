@@ -11,6 +11,29 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type ValueFeatureType int
+
+const (
+	text           ValueFeatureType = 0
+	number         ValueFeatureType = 1
+	jsonFormat     ValueFeatureType = 2
+	externResource ValueFeatureType = 3
+)
+
+func (s ValueFeatureType) String() string {
+	switch s {
+	case text:
+		return "text"
+	case number:
+		return "number"
+	case jsonFormat:
+		return "jsonFormat"
+	case externResource:
+		return "externResource"
+	}
+	return "unknown"
+}
+
 type FeatureDefinition struct {
 	Name string `yaml:"name" json:"name"`
 	Meta struct {
@@ -21,8 +44,8 @@ type FeatureDefinition struct {
 
 	Default struct {
 		Value struct {
-			Data interface{} `yaml:"data" json:"data"`
-			Type string      `yaml:"type" json:"type"`
+			Data interface{}      `yaml:"data" json:"data"`
+			Type ValueFeatureType `yaml:"type" json:"type"`
 		} `yaml:"value" json:"value"`
 		TTL string `yaml:"ttl" json:"ttl"`
 	} `yaml:"default" json:"default"`
@@ -38,7 +61,6 @@ type FeatureDefinition struct {
 			Selector       string `yaml:"selector" json:"selector"`
 		} `yaml:"rollout" json:"rollout"`
 	} `yaml:"configurations" json:"configurations,omitempty"`
-	//LastTimeUsed time.Time `yaml:"lasttimeused" json:"lasttimeused,omitempty"`
 }
 
 func (conf *FeatureDefinition) LoadFromYaml(payload interface{}) error {
@@ -85,17 +107,20 @@ func (conf *FeatureDefinition) GetFinalValue(vars map[string]string) (interface{
 
 	switch conf.Default.Value.Type {
 
-	case "string":
+	case text:
 		afterCast = data.(string)
-	case "json":
+	case jsonFormat:
 		b, err := json.MarshalIndent(data, "", "   ")
 		if err != nil {
 			logs.GetLogs().WriteMessage(logs.ERROR, "error marshalling content of featureDefinition to json", err)
 			return nil, err
 		}
 		afterCast = string(b)
-	case "number":
+	case number:
 		afterCast = data.(int)
+	case externResource:
+		logs.GetLogs().WriteMessage(logs.ERROR, "error TODO marshalling content of featureDefinition to externResource", nil)
+		afterCast = nil
 	}
 
 	logs.GetLogs().WriteMessage(logs.INFO, fmt.Sprintf("configuration applied: %s, matches: %v ", confId, matches), nil)
