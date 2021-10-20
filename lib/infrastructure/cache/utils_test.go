@@ -20,8 +20,8 @@ func getCommonScenarios() []testCase {
 
 	feDef.Name = "name"
 	feDef.Meta.Description = "test description"
-	feDef.Default.Value.Data = "value"
-	feDef.Default.Value.Type = "string"
+	feDef.Default.Value.Data = "value123"
+	feDef.Default.Value.Type = feature.ValueText
 	feDef.Default.TTL = "3s"
 
 	var tests = []testCase{

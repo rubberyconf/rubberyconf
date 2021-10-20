@@ -20,7 +20,7 @@ func (bb *ServiceFeature) GetFeatureOnlyValue(
 		if err != nil {
 			return inputPort.Unknown, nil, "", err
 		} else {
-			return inputPort.Success, finalresult, finaltype, err
+			return inputPort.Success, finalresult, finaltype.String(), err
 		}
 	} else {
 		return status, nil, "", err
