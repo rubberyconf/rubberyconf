@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
+	feature "github.com/rubberyconf/language/lib"
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 )
 

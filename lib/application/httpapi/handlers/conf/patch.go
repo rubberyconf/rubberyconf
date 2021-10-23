@@ -6,8 +6,8 @@ import (
 
 	"github.com/gorilla/mux"
 
+	feature "github.com/rubberyconf/language/lib"
 	"github.com/rubberyconf/rubberyconf/lib/application/httpapi/handlers/tools"
-	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 )
 

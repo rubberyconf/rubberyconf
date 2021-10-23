@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
+	feature "github.com/rubberyconf/language/lib"
 	config "github.com/rubberyconf/rubberyconf/lib/core/configuration"
-	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
 	"github.com/rubberyconf/rubberyconf/lib/core/logs"
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 

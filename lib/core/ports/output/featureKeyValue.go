@@ -1,7 +1,7 @@
 package output
 
 import (
-	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
+	feature "github.com/rubberyconf/language/lib"
 )
 
 type FeatureKeyValue struct {

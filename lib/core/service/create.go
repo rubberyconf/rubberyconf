@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
+	feature "github.com/rubberyconf/language/lib"
 	inputPort "github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
+	feature "github.com/rubberyconf/language/lib"
 	"github.com/rubberyconf/rubberyconf/lib/application/grpcapi/grpcapipb"
-	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/input"
 	"google.golang.org/protobuf/encoding/protojson"
 )

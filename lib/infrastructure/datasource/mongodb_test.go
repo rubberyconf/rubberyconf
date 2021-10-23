@@ -10,7 +10,7 @@ import (
 	config "github.com/rubberyconf/rubberyconf/lib/core/configuration"
 	"github.com/rubberyconf/rubberyconf/lib/core/ports/output"
 
-	"github.com/rubberyconf/rubberyconf/lib/core/domain/feature"
+	feature "github.com/rubberyconf/language/lib"
 )
 
 func TestDataSourceMongoDB_Creates(t *testing.T) {
