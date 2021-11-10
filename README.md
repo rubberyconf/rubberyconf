@@ -28,7 +28,7 @@ api:
 ```
 If you're running in your local environment you must name this file: **local.yml**. 
 
-- Lastly, run it: 
+- Finally, run it: 
 
 ``` 
 $cd ./cmd/server
@@ -79,20 +79,14 @@ hello world
 
 ### Feature description 
 
-In folder *./docs/features* you'll find some examples of features addmited by the rubberyconf.
-
-Examples of features:
- * [toggle1.yml - simple feature](./docs/features/toggle1.yml)
- * [toggle2.yml - advanced example](./docs/features/toggle2.yml)
- * [toggle3.yml - other example](./docs/features/toggle3.yml) 
-
+Configuration specficiation is defined in repo: [RubberyConf language spec](https://github.com/rubberyconf/language) 
 
 ## Datasource
 
 `rubberyconf` allows persist your configurations at: 
 
-- InMemory (just for develop and test)
-- Mongo
+- InMemory (for developing and testing)
+- MongoDB
 - Gogs
 - GitHub
 
@@ -104,16 +98,18 @@ To enable this configurations extremly fast for your consumers `rubberconf` uses
 - Redis
 - InMemory (in-process memory)
 
-# Configuration-as-code
+# Configuration-as-Code (CaC)
 
-`rubberyconf` connect your clients (web, apps or other services) with your configuration. It allows changing the configuration dynamically. For example, it is useful when you're building a **feature toggle** system. You release your changes behind a feature toggle through your CI/CD. Releasing as many times as you need, but having the feature toggle (aka configuration) disabled. Then, when you want to start releasing or testing your changes, you can change the configuration for a concrete set of users. Initially, all clients will receive the default value, i.e., **off**. However, a subset of your clients can receive another value like **on**. So, you can start testing with a subset of real clients and progressively roll it out by country, locations, flags and so on.
+`rubberyconf` connect your clients (web, apps or other services) with your configuration. It allows changing the configuration dynamically. For example, it is useful when you're building a **feature toggle** system. You release your changes behind a feature toggle through your CI/CD. Releasing as many times as you need, but having feature toggle (aka configuration) disabled. Then, when you want to start releasing or testing your changes, you can change the configuration for a concrete set of users. Initially, all clients will receive the default value, i.e., **off**. However, a subset of your clients can receive another value like **on**. So, you can start testing with a subset of real clients and progressively roll it out by country, locations, flags and so on.
 
 
 ## rubberyconf with Github.com and Redis
 
-This configuration allows you to store your configurations in a Githug repo. `rubberyconf` will reach Github to retrieve the configuration and it will store it in *redis* for some TTL. It reduces the impact on Github service based on TTL value.  The main advantages of this configuration are: you can use *pull request* and *commits* to track changes in your configuration with your favourites tools. 
+This configuration allows you to store your configurations in a Githug repo. `rubberyconf` will reach Github to retrieve the configuration and it will store it in *redis* cache for some TTL. It reduces the impact on Github service based on TTL value.  The main advantages of this configuration are: you can use *pull request* and *commits* to track changes in your configuration with your favourites tools. 
 
-Instead of using Github, you can use [Gogs](https://github.com/gogs/gogs).
+Instead of using Github, you can use [Gogs](https://github.com/gogs/gogs) locally or managed in your own infrastructure.
+
+RubbyerConf with GitHub and Redis is the best use case to apply CaC in your systems. 
 
 
 # Logics applied to configurations
@@ -126,9 +122,7 @@ Examples:
 - http querystring parameter
 - client version
 
-A complete list of features implemented is [here](./internal/feature/rules)
-
-Those logics are extensibles, your contributions are welcome.   
+A complete list of features implemented is [RubberyConf language spec](https://github.com/rubberyconf/language) 
 
 # License
 
