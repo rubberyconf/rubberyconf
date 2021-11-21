@@ -27,7 +27,7 @@ require (
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/rs/cors v1.8.0
-	github.com/rubberyconf/language v0.0.0-20211023003203-d278e0d48af7
+	github.com/rubberyconf/language v0.1.0
 	github.com/testcontainers/testcontainers-go v0.11.1
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
 	go.mongodb.org/mongo-driver v1.7.0
